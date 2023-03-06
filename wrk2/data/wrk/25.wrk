@@ -1,0 +1,80 @@
+Running 30s test @ http://jsonplaceholder.typicode.com/todos/1
+  8 threads and 25 connections
+  Thread calibration: mean lat.: 24.764ms, rate sampling interval: 103ms
+  Thread calibration: mean lat.: 24.545ms, rate sampling interval: 72ms
+  Thread calibration: mean lat.: 23.383ms, rate sampling interval: 80ms
+  Thread calibration: mean lat.: 24.037ms, rate sampling interval: 75ms
+  Thread calibration: mean lat.: 22.874ms, rate sampling interval: 75ms
+  Thread calibration: mean lat.: 22.371ms, rate sampling interval: 84ms
+  Thread calibration: mean lat.: 24.081ms, rate sampling interval: 80ms
+  Thread calibration: mean lat.: 22.512ms, rate sampling interval: 72ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    15.98ms    3.75ms  49.31ms   86.51%
+    Req/Sec     3.13     10.15    42.00     91.65%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%   14.98ms
+ 75.000%   16.86ms
+ 90.000%   19.92ms
+ 99.000%   29.95ms
+ 99.900%   41.15ms
+ 99.990%   49.34ms
+ 99.999%   49.34ms
+100.000%   49.34ms
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+      11.383     0.000000            1         1.00
+      13.015     0.100000           51         1.11
+      13.503     0.200000          101         1.25
+      13.927     0.300000          152         1.43
+      14.407     0.400000          202         1.67
+      14.975     0.500000          252         2.00
+      15.311     0.550000          278         2.22
+      15.583     0.600000          304         2.50
+      15.951     0.650000          329         2.86
+      16.335     0.700000          354         3.33
+      16.863     0.750000          378         4.00
+      17.311     0.775000          391         4.44
+      17.775     0.800000          404         5.00
+      18.239     0.825000          417         5.71
+      18.831     0.850000          429         6.67
+      19.455     0.875000          441         8.00
+      19.679     0.887500          448         8.89
+      19.919     0.900000          454        10.00
+      20.319     0.912500          460        11.43
+      20.943     0.925000          467        13.33
+      21.583     0.937500          473        16.00
+      21.983     0.943750          476        17.78
+      22.559     0.950000          479        20.00
+      23.183     0.956250          482        22.86
+      24.255     0.962500          486        26.67
+      24.863     0.968750          489        32.00
+      25.007     0.971875          490        35.56
+      25.391     0.975000          492        40.00
+      25.631     0.978125          493        45.71
+      26.015     0.981250          495        53.33
+      27.391     0.984375          497        64.00
+      27.391     0.985938          497        71.11
+      27.743     0.987500          498        80.00
+      29.951     0.989062          499        91.43
+      30.415     0.990625          500       106.67
+      30.607     0.992188          501       128.00
+      30.607     0.992969          501       142.22
+      30.607     0.993750          501       160.00
+      39.071     0.994531          502       182.86
+      39.071     0.995313          502       213.33
+      41.151     0.996094          503       256.00
+      41.151     0.996484          503       284.44
+      41.151     0.996875          503       320.00
+      41.151     0.997266          503       365.71
+      41.151     0.997656          503       426.67
+      49.343     0.998047          504       512.00
+      49.343     1.000000          504          inf
+#[Mean    =       15.975, StdDeviation   =        3.752]
+#[Max     =       49.312, Total count    =          504]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  768 requests in 30.02s, 848.37KB read
+Requests/sec:     25.58
+Transfer/sec:     28.26KB
