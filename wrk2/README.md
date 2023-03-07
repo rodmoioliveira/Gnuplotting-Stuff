@@ -1,9 +1,9 @@
 # wrk
 
-1. First, create the directories for `wrk` and `csv` data:
+1. First, create the directories for `wrk`, `csv` data and `plot` files:
 
 ```sh
-mkdir data/{wrk,csv}
+mkdir -p data/{wrk,csv,plot}
 ```
 
 2. Then, collect some latencies with [wrk2](https://github.com/giltene/wrk2):
@@ -26,13 +26,15 @@ wrk2 -t8 -c400 -d30s -R500 --latency "http://jsonplaceholder.typicode.com/todos/
 for file in $(fd . data -e wrk); do rg '^ {2,10}\d' --no-filename --no-line-number $file | rg request -v | rg threads -v |  awk '{print $2","$1}' | sed '1i percentile,'$(echo $file  | sd 'data/wrk/' '')'' > "$(echo $file | sd 'wrk' "csv")"; done
 ```
 
-4. Plot the data:
+## Latency
+
+Plot the data with:
 
 ```sh
 ./gnuplot_wrk.sh
 ```
 
-## Result
+Result:
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/wrk2/data/plot/wrk.png">
