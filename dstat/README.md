@@ -60,6 +60,20 @@ Result:
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/memory.png">
 </p>
 
+## Virtual Memory
+
+Plot the data with:
+
+```sh
+./gnuplot_dstat_vmem.sh
+```
+
+Result:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/vmemory.png">
+</p>
+
 ## Disk
 
 Plot the data with:
