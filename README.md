@@ -20,6 +20,7 @@
   - gawk
   - gnuplot
   - mlr
+  - numfmt
   - ripgrep
   - sd
   - sed
