@@ -32,6 +32,20 @@ Result:
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/cpu.png">
 </p>
 
+## Network
+
+Plot the data with:
+
+```sh
+./gnuplot_dstat_net.sh
+```
+
+Result:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/net.png">
+</p>
+
 ## Memory
 
 Plot the data with:
