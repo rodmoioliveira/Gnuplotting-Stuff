@@ -29,3 +29,7 @@ disable=SC1003
 # Quote this to prevent word splitting.
 # https://github.com/koalaman/shellcheck/wiki/SC2046
 disable=SC2046
+
+# Consider using { cmd1; cmd2; } >> file instead of individual redirects.
+# https://github.com/koalaman/shellcheck/wiki/SC2129
+disable=SC2129

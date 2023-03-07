@@ -23,7 +23,7 @@ wrk2 -t8 -c400 -d30s -R500 --latency "http://jsonplaceholder.typicode.com/todos/
 3. Now you must convert the `wrk` files to `csv`:
 
 ```sh
-for file in $(fd . data -e wrk); do rg '^ {2,10}\d' --no-filename --no-line-number $file | rg request -v | rg threads -v |  awk '{print $2","$1}' | sed '1i percentile,'$(echo $file  | sd 'data/wrk/' '')'' > "$(echo $file | sd 'wrk' "csv")"; done
+for file in $(fd . data -e wrk); do rg '^ {2,10}\d' --no-filename --no-line-number $file | rg request -v | rg threads -v |  awk '{print $4","$1}' | sed '1i percentile,'$(echo $file  | sd 'data/wrk/' '')'' > "$(echo $file | sd 'wrk' "csv")"; done
 ```
 
 ## Latency
