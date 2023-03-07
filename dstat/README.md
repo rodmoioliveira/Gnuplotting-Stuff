@@ -47,3 +47,17 @@ Result:
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/io.png">
 </p>
 
+
+## Proc
+
+Plot the data with:
+
+```sh
+./gnuplot_dstat_proc.sh
+```
+
+Result:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/proc.png">
+</p>

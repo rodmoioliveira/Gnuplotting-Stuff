@@ -21,9 +21,9 @@ plot() {
   done
 
   gnuplot <<EOF
-set terminal pngcairo size 1700,700 font "Roboto,16"
+set terminal pngcairo enhanced size 1700,700 font "Merriweather,16"
 
-set title "Latency Distribution" font "{:Bold},24"
+set title "Latency Distribution" font "Merriweather-Bold,24"
 set datafile separator ','
 
 set tics out font ",12"
@@ -31,8 +31,8 @@ set xtics rotate
 set grid xtics ytics
 
 set key bottom center outside autotitle columnhead font ",14" horizontal
-set ylabel "Milliseconds" offset 1,0 font "{:Bold},14"
-set xlabel "Percentile" offset 0,3 font "{:Bold},14"
+set ylabel "Milliseconds" offset 1,0 font "Merriweather-Bold,14"
+set xlabel "Percentile" offset 0,3 font "Merriweather-Bold,14"
 
 set style line  1 linecolor rgb '#a6cee3' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
 set style line  2 linecolor rgb '#1f78b4' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
