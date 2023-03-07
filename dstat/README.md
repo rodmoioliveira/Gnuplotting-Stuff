@@ -33,20 +33,33 @@ Result:
 </p>
 
 
-## IO
+## Disk
 
 Plot the data with:
 
 ```sh
-./gnuplot_dstat_io.sh
+./gnuplot_dstat_disk.sh
 ```
 
 Result:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/io.png">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/disk.png">
 </p>
 
+## IO Requests
+
+Plot the data with:
+
+```sh
+./gnuplot_dstat_io_requests.sh
+```
+
+Result:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/io_requests.png">
+</p>
 
 ## Proc
 
