@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  TRACE: 1
+  TRACE: 0
 
 jobs:
   tests:
@@ -42,7 +42,7 @@ jobs:
       run: make symlink
 
     - name: Test pwrk2 ${{ matrix.os }}
-      run: source ~/.bash_profile; pwrk2 --help
+      run: source ~/.bash_profile; pwrk2 --help; pwrk2 --title "Title" --color-fg "#222222" --color-bg "#444444" --font "Arial" --font-scale 2 --height 800 --width 1600 --line-width 2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output out.png  --open false --key-margin 8
 
     - name: Unsymlink scripts ${{ matrix.os }}
       run: make unsymlink
