@@ -23,6 +23,7 @@ HEIGHT=700
 LINE_WIDTH=1.5
 TITLE="Latency Distribution"
 WIDTH=1700
+HAS_KEYS=false
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -57,12 +58,22 @@ wrk_to_csv() {
   for file in ${FILES[*]}; do
     filename=$(echo "${file}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
     csv="${TMP_DIR_CSV}/${filename}.csv"
+    sd_cmd="sd '${KEY_FROM}' '${KEY_TO}'"
+    data_name=$(echo "${filename}" | eval "$sd_cmd")
 
-    rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
-      rg request -v |
-      rg threads -v |
-      awk '{print $4","$1}' |
-      sed '1i percentile,'"${filename}"'' >"${csv}"
+    if [[ "${HAS_KEYS}" == true ]]; then
+      rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
+        rg request -v |
+        rg threads -v |
+        awk '{print $4","$1}' |
+        sed '1i percentile,'"${data_name}"'' >"${csv}"
+    else
+      rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
+        rg request -v |
+        rg threads -v |
+        awk '{print $4","$1}' |
+        sed '1i percentile,'"${filename}"'' >"${csv}"
+    fi
   done
 }
 
@@ -72,10 +83,10 @@ usage_short() {
     cat <<"EOF"
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
-Usage: gpwrk2 [OPTIONS] <FILES>...
+Usage: gpwrk2 [OPTIONS] <FILE>...
 
 Arguments:
-  <FILES>...    A list of space-separated FILES in wrk2 `--latency` format
+  <FILE>...    A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
       --title <TITLE>             Plot title [default: Latency Distribution]
@@ -84,6 +95,8 @@ Options:
       --height <HEIGHT>           Plot height [default: 700]
       --width <WIDTH>             Plot width [default: 1700]
       --line-width <LINE-WIDTH>   Plot latency line width [default: 1.5]
+      --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
+      --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
   -o, --output <OUTPUT>           Output plot file [default: gpwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -99,10 +112,10 @@ usage_long() {
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
 Usage:
-  gpwrk2 [OPTIONS] <FILES>...
+  gpwrk2 [OPTIONS] <FILE>...
 
 Arguments:
-  <FILES>...
+  <FILE>...
           A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
@@ -124,6 +137,12 @@ Options:
       --line-width <LINE-WIDTH>
           Plot latency line width [default: 1.5]
 
+      --key-from <REGEX>
+          Regex to find in the name of <FILE>, used to set key labels
+
+      --key-to <REPLACE>
+          Regex to replace the name of <FILE>, used to set key labels
+
   -o, --output <OUTPUT>
           Output plot file [default: gpwrk2.png]
 
@@ -138,6 +157,9 @@ Get some data:
 Plot from data:
   fd . -e wrk | gpwrk2
   gpwrk2 *.wrk
+
+Rename labels of graph:
+  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1}-rate'
 EOF
   )
 
@@ -150,9 +172,15 @@ error_no_input() {
   exit 1
 }
 
+error_keys() {
+  printf 1>&2 "if some --key-{from,to} is present, the other must also be present ...\n"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
+}
+
 args_parse() {
   local args
-  if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width: -- "$@"); then
+  if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -188,6 +216,14 @@ args_parse() {
       shift
       TITLE="$1"
       ;;
+    --key-from)
+      shift
+      KEY_FROM="$1"
+      ;;
+    --key-to)
+      shift
+      KEY_TO="$1"
+      ;;
     -h)
       usage_short
       exit 0
@@ -221,6 +257,18 @@ args_parse() {
   fi
 }
 
+handle_key() {
+  if [[ -z "${KEY_FROM}" && -z "${KEY_TO}" ]]; then
+    HAS_KEYS=false
+  elif [[ -z "${KEY_FROM}" && -n "${KEY_TO}" ]]; then
+    error_keys
+  elif [[ -n "${KEY_FROM}" && -z "${KEY_TO}" ]]; then
+    error_keys
+  else
+    HAS_KEYS=true
+  fi
+}
+
 handle_output() {
   if [[ -z "${OUTPUT}" ]]; then
     OUTPUT_FILE="gpwrk2.png"
@@ -230,6 +278,7 @@ handle_output() {
 }
 
 args_validate() {
+  handle_key
   handle_output
 }
 
