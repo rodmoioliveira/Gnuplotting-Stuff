@@ -25,6 +25,7 @@ WIDTH=1700
 HAS_KEYS=false
 KEY_MARGIN=6
 LINE_WIDTH=1.5
+OPEN_PLOT=true
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -99,6 +100,7 @@ Options:
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
       --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
+      --no-open                   Don't open the plot after generation
   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -147,6 +149,9 @@ Options:
 
       --key-margin <MARGIN>
           Bottom plot margin for key labels [default: 6]
+
+      --no-open
+          Don't open the plot after generation
 
   -o, --output <OUTPUT>
           Output plot file [default: pwrk2.png]
@@ -207,7 +212,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,no-open -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -258,6 +263,9 @@ args_parse() {
     -h)
       usage_short
       exit 0
+      ;;
+    --no-open)
+      OPEN_PLOT=false
       ;;
     --help)
       usage_long
@@ -369,13 +377,15 @@ EOF
 }
 
 plot_open() {
-  unameOut="$(uname -s)"
+  if [[ "${OPEN_PLOT}" == true ]]; then
+    unameOut="$(uname -s)"
 
-  case "${unameOut}" in
-    Linux*) xdg-open "${OUTPUT_FILE}" ;;
-    Darwin*) open "${OUTPUT_FILE}" ;;
-    CYGWIN* | MINGW* | *) ;;
-  esac
+    case "${unameOut}" in
+      Linux*) xdg-open "${OUTPUT_FILE}" ;;
+      Darwin*) open "${OUTPUT_FILE}" ;;
+      CYGWIN* | MINGW* | *) ;;
+    esac
+  fi
 }
 
 main() {
