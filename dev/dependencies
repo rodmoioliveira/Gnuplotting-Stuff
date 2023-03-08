@@ -29,6 +29,9 @@ install_mac() {
   echo 'export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"' | sudo tee -a ~/.bash_profile
   echo 'export FLAGS_GETOPT_CMD="$(brew --prefix gnu-getopt)/bin/getopt"' | sudo tee -a ~/.bash_profile
   source ~/.bash_profile
+
+  getopt --help
+  getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- --help
 }
 
 install() {
