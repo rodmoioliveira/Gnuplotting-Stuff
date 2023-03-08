@@ -11,11 +11,15 @@ readme() {
   cat <<EOF >|./wrk2/README.md
 # gpwrk2
 
+$(2>&1 ./wrk2/gpwrk2 -h | head -n1)
+
+## Usage
+
 \`\`\`txt
-$(./wrk2/gpwrk2 2>&1 --help)
+$(2>&1 ./wrk2/gpwrk2 --help)
 \`\`\`
 
-Result:
+## Result
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/wrk2/data/plot/gpwrk2.png">

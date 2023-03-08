@@ -17,13 +17,14 @@ set -o errexit
 set -o pipefail
 set -o noclobber
 
+TITLE="Latency Distribution"
 FONT="Merriweather"
 FONT_SCALE=1
 HEIGHT=700
-LINE_WIDTH=1.5
-TITLE="Latency Distribution"
 WIDTH=1700
 HAS_KEYS=false
+KEY_MARGIN=6
+LINE_WIDTH=1.5
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -97,6 +98,7 @@ Options:
       --line-width <LINE-WIDTH>   Plot latency line width [default: 1.5]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
+      --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
   -o, --output <OUTPUT>           Output plot file [default: gpwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -143,6 +145,9 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
+      --key-margin <MARGIN>
+          Bottom plot margin for key labels [default: 6]
+
   -o, --output <OUTPUT>
           Output plot file [default: gpwrk2.png]
 
@@ -159,7 +164,7 @@ Plot from data:
   gpwrk2 *.wrk
 
 Rename labels of graph:
-  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1}-rate'
+  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/gpwrk2.png
 EOF
   )
 
@@ -180,7 +185,7 @@ error_keys() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to: -- "$@"); then
+  if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -223,6 +228,10 @@ args_parse() {
     --key-to)
       shift
       KEY_TO="$1"
+      ;;
+    --key-margin)
+      shift
+      KEY_MARGIN="$1"
       ;;
     -h)
       usage_short
@@ -308,7 +317,7 @@ set xtics rotate
 set grid xtics ytics
 
 set key bottom center outside autotitle columnhead font ",$(calc_font_size 14)" horizontal
-set ylabel "Milliseconds" offset 1,0 font "${FONT}-Bold,$(calc_font_size 14)"
+set ylabel "Milliseconds" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 set xlabel "Percentile" offset 0,-1.5 font "${FONT}-Bold,$(calc_font_size 14)"
 
 set style line  1 linecolor rgb '#a6cee3' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
@@ -326,7 +335,7 @@ set style line 12 linecolor rgb '#b15928' linetype 1 linewidth ${LINE_WIDTH} poi
 
 set logscale x
 unset xtics
-set bmargin 6
+set bmargin "${KEY_MARGIN}"
 
 set border back
 set output "${OUTPUT_FILE}"

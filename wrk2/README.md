@@ -1,5 +1,9 @@
 # gpwrk2
 
+Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+
+## Usage
+
 ```txt
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
@@ -35,6 +39,9 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
+      --key-margin <MARGIN>
+          Bottom plot margin for key labels [default: 6]
+
   -o, --output <OUTPUT>
           Output plot file [default: gpwrk2.png]
 
@@ -51,10 +58,10 @@ Plot from data:
   gpwrk2 *.wrk
 
 Rename labels of graph:
-  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1}-rate'
+  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/gpwrk2.png
 ```
 
-Result:
+## Result
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/wrk2/data/plot/gpwrk2.png">
