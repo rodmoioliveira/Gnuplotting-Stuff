@@ -183,6 +183,28 @@ error_keys() {
   exit 1
 }
 
+deps_validate() {
+  summary=()
+  is_valid=true
+
+  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "sed" "xdg-open")
+  for dep in "${deps[@]}"; do
+    if ! command -v "${dep}" &> /dev/null; then
+      summary+=("[Missing] ${dep}")
+      is_valid=false
+    else
+      summary+=("[OK] ${dep}")
+    fi
+  done
+
+  if [[ "${is_valid}" == false ]]; then
+    2>&1 printf "You have missing dependencies.\n"
+    2>&1 printf "You must install the missing dependencies for gpwrk2 work correctly.\n\n"
+    2>&1 printf "%s\n" "${summary[@]}"
+    exit 1
+  fi
+}
+
 args_parse() {
   local args
   if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- "$@"); then
@@ -266,7 +288,7 @@ args_parse() {
   fi
 }
 
-handle_key() {
+arg_key() {
   if [[ -z "${KEY_FROM}" && -z "${KEY_TO}" ]]; then
     HAS_KEYS=false
   elif [[ -z "${KEY_FROM}" && -n "${KEY_TO}" ]]; then
@@ -278,7 +300,7 @@ handle_key() {
   fi
 }
 
-handle_output() {
+arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
     OUTPUT_FILE="gpwrk2.png"
   else
@@ -287,15 +309,15 @@ handle_output() {
 }
 
 args_validate() {
-  handle_key
-  handle_output
+  arg_key
+  arg_output
 }
 
 calc_font_size() {
   echo "${1} * ${FONT_SCALE}" | bc
 }
 
-plot() {
+plot_draw() {
   local counter=1
   local -a csv_files
   local plot_directives="plot '${TMP_XLABELS_CSV}' with labels center offset 0, -1 point notitle, "
@@ -346,17 +368,18 @@ exit
 EOF
 }
 
-open_plot() {
+plot_open() {
   xdg-open "${OUTPUT_FILE}"
 }
 
 main() {
+  deps_validate
   args_parse "$@"
   args_validate
   mktempdir
   wrk_to_csv
-  plot
-  open_plot
+  plot_draw
+  plot_open
 }
 
 main "$@"
