@@ -24,21 +24,6 @@ readme() {
   - http://www.gnuplotting.org/
   - https://github.com/Koushikphy/CheatSheets/blob/master/cheatsheets/gnuplot_cheatsheet.md
   - https://github.com/iselab-dearborn/gnuplot-scripts
-
-## Dependencies
-
-  - bat
-  - bc
-  - dstat
-  - fd
-  - gawk
-  - gnuplot
-  - mlr
-  - numfmt
-  - ripgrep
-  - sd
-  - sed
-  - wrk2
 EOF
 
   sd '(make\[1\]:.+\n)' '' README.md
