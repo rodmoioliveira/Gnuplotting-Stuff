@@ -26,6 +26,8 @@ HAS_KEYS=false
 KEY_MARGIN=6
 LINE_WIDTH=1.5
 OPEN_PLOT=true
+COLOR_FG="#222222"
+COLOR_BG="#f9f9f9"
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -92,6 +94,8 @@ Arguments:
 
 Options:
       --title <TITLE>             Plot title [default: Latency Distribution]
+      --color-fg <COLOR>          Set foreground color [default: #222222]
+      --color-bg <COLOR>          Set background color [default: #f9f9f9]
       --font <FONT>               Plot font [default: Merriweather]
       --font-scale <FONT-SCALE>   Plot font scale [default: 1]
       --height <HEIGHT>           Plot height [default: 700]
@@ -125,6 +129,12 @@ Arguments:
 Options:
       --title <TITLE>
           Plot title [default: Latency Distribution]
+
+      --color-fg <COLOR>
+          Set foreground color [default: #222222]
+
+      --color-bg <COLOR>
+          Set background color [default: #f9f9f9]
 
       --font <FONT>
           Plot font [default: Merriweather]
@@ -168,8 +178,19 @@ Plot from data:
   fd . -e wrk | pwrk2
   pwrk2 *.wrk
 
-Rename labels of graph:
+Rename plot labels:
   fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
+
+Change plot styles:
+  fd . -e wrk | pwrk2 \
+    --color-bg "#000000" \
+    --color-fg "#ffffff" \
+    --font 'Roboto' \
+    --font-scale 1.5 \
+    --line-width 3 \
+    --width 1500 \
+    --height 1200 \
+    --key-margin 7
 EOF
   )
 
@@ -212,7 +233,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,no-open -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,no-open,color-fg:,color-bg: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -259,6 +280,14 @@ args_parse() {
     --key-margin)
       shift
       KEY_MARGIN="$1"
+      ;;
+    --color-fg)
+      shift
+      COLOR_FG="$1"
+      ;;
+    --color-bg)
+      shift
+      COLOR_BG="$1"
       ;;
     -h)
       usage_short
@@ -328,7 +357,7 @@ calc_font_size() {
 plot_draw() {
   local counter=1
   local -a csv_files
-  local plot_directives="plot '${TMP_XLABELS_CSV}' with labels center offset 0, -1 point notitle, "
+  local plot_directives="plot '${TMP_XLABELS_CSV}' with labels center offset 0, -1 tc \"${COLOR_FG}\" notitle, '${TMP_XLABELS_CSV}' with points pt 1 lc \"${COLOR_FG}\" ps 2 notitle, "
 
   while IFS= read -r q; do csv_files+=("${q}"); done < <(ls -1v "${TMP_DIR_CSV}")
   for csv in "${csv_files[@]}"; do
@@ -337,14 +366,23 @@ plot_draw() {
   done
 
   gnuplot <<EOF
-set terminal pngcairo enhanced size "${WIDTH}","${HEIGHT}" font "${FONT},$(calc_font_size 16)"
+set terminal pngcairo enhanced background rgb "${COLOR_BG}" size "${WIDTH}","${HEIGHT}" font "${FONT},$(calc_font_size 16)"
+
+set border linecolor rgb "${COLOR_FG}"
+set grid linecolor rgb "${COLOR_FG}"
+set key textcolor rgb "${COLOR_FG}"
+set title textcolor rgb "${COLOR_FG}"
+set xlabel textcolor rgb "${COLOR_FG}"
+set xtics textcolor rgb "${COLOR_FG}"
+set ylabel textcolor rgb "${COLOR_FG}"
+set ytics textcolor rgb "${COLOR_FG}"
 
 set title "${TITLE}" font "${FONT}-Bold,$(calc_font_size 24)"
 set datafile separator ','
 
 set tics out font ",$(calc_font_size 12)"
 set xtics rotate
-set grid xtics ytics
+set grid back xtics ytics
 
 set key bottom center outside autotitle columnhead font ",$(calc_font_size 14)" horizontal
 set ylabel "Milliseconds" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"

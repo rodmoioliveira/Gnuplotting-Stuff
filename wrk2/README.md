@@ -28,6 +28,12 @@ Options:
       --title <TITLE>
           Plot title [default: Latency Distribution]
 
+      --color-fg <COLOR>
+          Set foreground color [default: #222222]
+
+      --color-bg <COLOR>
+          Set background color [default: #f9f9f9]
+
       --font <FONT>
           Plot font [default: Merriweather]
 
@@ -70,8 +76,19 @@ Plot from data:
   fd . -e wrk | pwrk2
   pwrk2 *.wrk
 
-Rename labels of graph:
+Rename plot labels:
   fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
+
+Change plot styles:
+  fd . -e wrk | pwrk2 \
+    --color-bg "#000000" \
+    --color-fg "#ffffff" \
+    --font 'Roboto' \
+    --font-scale 1.5 \
+    --line-width 3 \
+    --width 1500 \
+    --height 1200 \
+    --key-margin 7
 ```
 
 ## Result
