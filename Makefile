@@ -6,14 +6,27 @@ help: ## Display this help screen
 		{printf "%-14s %s\n", $$1, $$2}' | \
 		sort
 
-code-fmt: ## Format sh files
+dependencies: ## Install dependencies
+	@./dev/dependencies
+
+code-fmt: ## Format bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -w
 
-code-lint: ## Run lint for sh files
+code-fmt-check: ## Check format bash code
+	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -d
+
+code-lint: ## Run lint for bash files
 	@fd . -t f -e sh --absolute-path | xargs shellcheck -o all
 
+symlink: ## Add symlink to scripts in path
+	@./dev/symlink
+
+unsymlink: ## Remove symlink to scripts from path
+	@./dev/unsymlink
+
 readme: ## Write README.md
-	@./wrk2/dev/readme.sh
+	@./dev/readme
+	@./wrk2/dev/readme
 
 typos: ## Check typos
 	@typos
@@ -23,7 +36,11 @@ typos-fix: ## Fix typos
 
 .PHONY: help
 .PHONY: code-fmt
+.PHONY: code-fmt-check
 .PHONY: code-lint
+.PHONY: dependencies
 .PHONY: readme
+.PHONY: symlink
 .PHONY: typos
 .PHONY: typos-fix
+.PHONY: unsymlink

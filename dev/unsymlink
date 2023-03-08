@@ -1,0 +1,23 @@
+#!/bin/bash
+
+declare TRACE
+[[ "${TRACE}" == 1 ]] && set -o xtrace
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o noclobber
+
+unsymlink() {
+  local -a scripts
+  while IFS= read -r line; do scripts+=("${line}"); done < <(rg '^#!/bin/bash$' -l | rg sh -v | rg dev -v)
+  for script in "${scripts[@]}"; do
+    local file
+    file=$(echo "${script}" | awk -F'/' '{print $NF}')
+    local path=/usr/local/bin/"${file}"
+    sudo rm "${path}"
+    printf 1>&2 "Unnstalling %s from %s ...\n" "${file}" "${path}"
+  done
+  printf 1>&2 "Done!\n"
+}
+
+trap unsymlink EXIT
