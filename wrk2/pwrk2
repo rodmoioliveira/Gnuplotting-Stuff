@@ -187,7 +187,7 @@ deps_validate() {
   summary=()
   is_valid=true
 
-  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "sed" "xdg-open")
+  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "sed")
   for dep in "${deps[@]}"; do
     if ! command -v "${dep}" &> /dev/null; then
       summary+=("[Missing] ${dep}")
@@ -369,7 +369,13 @@ EOF
 }
 
 plot_open() {
-  xdg-open "${OUTPUT_FILE}"
+  unameOut="$(uname -s)"
+
+  case "${unameOut}" in
+    Linux*) xdg-open "${OUTPUT_FILE}" ;;
+    Darwin*) open "${OUTPUT_FILE}" ;;
+    CYGWIN* | MINGW* | *) ;;
+  esac
 }
 
 main() {

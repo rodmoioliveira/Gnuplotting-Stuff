@@ -3,7 +3,7 @@
 install_linux() {
   curl -sL https://git.io/_has | sudo tee /usr/local/bin/has >/dev/null && sudo chmod +x /usr/local/bin/has
   curl -sS https://webi.sh/shfmt | sh
-  sudo apt-get install shellcheck -y
+  sudo apt-get install shellcheck gawk gnuplot -y
   curl https://sh.rustup.rs -sSf | sh -s -- -y
   cargo install sd
   cargo install fd-find
@@ -24,6 +24,8 @@ install_mac() {
   brew install typos-cli
   brew install bat
   brew install gnu-getopt
+  brew install gawk
+  brew install gnuplot
   echo 'export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"' | sudo tee -a ~/.bash_profile
   echo 'export FLAGS_GETOPT_CMD="$(brew --prefix gnu-getopt)/bin/getopt"' | sudo tee -a ~/.bash_profile
   source ~/.bash_profile
