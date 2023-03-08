@@ -2,7 +2,7 @@
 
 #########################################################################
 ##
-## TITLE:         gpwrk2
+## TITLE:         pwrk2
 ## AUTHOR:        Rodolfo Mói de Oliveira
 ## DESCRIPTION:   Gnuplot script for plotting latency graphs from
 ##                wrk2 `--latency` data
@@ -84,7 +84,7 @@ usage_short() {
     cat <<"EOF"
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
-Usage: gpwrk2 [OPTIONS] <FILE>...
+Usage: pwrk2 [OPTIONS] <FILE>...
 
 Arguments:
   <FILE>...    A list of space-separated FILES in wrk2 `--latency` format
@@ -99,7 +99,7 @@ Options:
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
       --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
-  -o, --output <OUTPUT>           Output plot file [default: gpwrk2.png]
+  -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
   )
@@ -114,7 +114,7 @@ usage_long() {
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
 Usage:
-  gpwrk2 [OPTIONS] <FILE>...
+  pwrk2 [OPTIONS] <FILE>...
 
 Arguments:
   <FILE>...
@@ -149,7 +149,7 @@ Options:
           Bottom plot margin for key labels [default: 6]
 
   -o, --output <OUTPUT>
-          Output plot file [default: gpwrk2.png]
+          Output plot file [default: pwrk2.png]
 
   -h, --help
           Print help information (use `-h` for a summary)
@@ -160,11 +160,11 @@ Get some data:
   wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
 
 Plot from data:
-  fd . -e wrk | gpwrk2
-  gpwrk2 *.wrk
+  fd . -e wrk | pwrk2
+  pwrk2 *.wrk
 
 Rename labels of graph:
-  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/gpwrk2.png
+  fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
 EOF
   )
 
@@ -199,7 +199,7 @@ deps_validate() {
 
   if [[ "${is_valid}" == false ]]; then
     2>&1 printf "You have missing dependencies.\n"
-    2>&1 printf "You must install the missing dependencies for gpwrk2 work correctly.\n\n"
+    2>&1 printf "You must install the missing dependencies for pwrk2 work correctly.\n\n"
     2>&1 printf "%s\n" "${summary[@]}"
     exit 1
   fi
@@ -207,7 +207,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n gpwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -302,7 +302,7 @@ arg_key() {
 
 arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
-    OUTPUT_FILE="gpwrk2.png"
+    OUTPUT_FILE="pwrk2.png"
   else
     OUTPUT_FILE="${OUTPUT}"
   fi

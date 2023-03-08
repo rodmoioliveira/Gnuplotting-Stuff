@@ -1,4 +1,4 @@
-# gpwrk2
+# pwrk2
 
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
@@ -8,7 +8,7 @@ Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
 Usage:
-  gpwrk2 [OPTIONS] <FILE>...
+  pwrk2 [OPTIONS] <FILE>...
 
 Arguments:
   <FILE>...
@@ -43,7 +43,7 @@ Options:
           Bottom plot margin for key labels [default: 6]
 
   -o, --output <OUTPUT>
-          Output plot file [default: gpwrk2.png]
+          Output plot file [default: pwrk2.png]
 
   -h, --help
           Print help information (use `-h` for a summary)
@@ -54,16 +54,16 @@ Get some data:
   wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
 
 Plot from data:
-  fd . -e wrk | gpwrk2
-  gpwrk2 *.wrk
+  fd . -e wrk | pwrk2
+  pwrk2 *.wrk
 
 Rename labels of graph:
-  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/gpwrk2.png
+  fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
 ```
 
 ## Result
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/wrk2/data/plot/gpwrk2.png">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/wrk2/data/plot/pwrk2.png">
 </p>
 
