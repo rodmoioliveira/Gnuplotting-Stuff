@@ -104,7 +104,7 @@ Options:
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
       --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
-      --no-open                   Don't open the plot after generation
+      --open <BOOL>               Whether or not should open the plot after generation [default: true] [possible values: true, false]
   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -160,8 +160,8 @@ Options:
       --key-margin <MARGIN>
           Bottom plot margin for key labels [default: 6]
 
-      --no-open
-          Don't open the plot after generation
+      --open <BOOL>
+          Whether or not should open the plot after generation [default: true] [possible values: true, false]
 
   -o, --output <OUTPUT>
           Output plot file [default: pwrk2.png]
@@ -209,6 +209,12 @@ error_keys() {
   exit 1
 }
 
+error_open() {
+  printf 1>&2 "the flag --open <BOOL> must be 'true' or 'false' ...\n"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
+}
+
 deps_validate() {
   summary=()
   is_valid=true
@@ -233,7 +239,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,no-open,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,color-fg:,color-bg: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,open:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,color-fg:,color-bg: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -289,8 +295,9 @@ args_parse() {
       shift
       COLOR_BG="$1"
       ;;
-    --no-open)
-      OPEN_PLOT=false
+    --open)
+      shift
+      OPEN_PLOT="$1"
       ;;
     -h)
       usage_short
@@ -337,6 +344,12 @@ arg_key() {
   fi
 }
 
+arg_open() {
+  if ! [[ "${OPEN_PLOT}" == true || "${OPEN_PLOT}" == false ]]; then
+    error_open
+  fi
+}
+
 arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
     OUTPUT_FILE="pwrk2.png"
@@ -347,6 +360,7 @@ arg_output() {
 
 args_validate() {
   arg_key
+  arg_open
   arg_output
 }
 
