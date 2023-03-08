@@ -4,10 +4,10 @@
 Gnuplot script for plotting latency graphs from wrk2 `--latency` data
 
 Usage:
-  gpwrk2 [OPTIONS] <FILES>...
+  gpwrk2 [OPTIONS] <FILE>...
 
 Arguments:
-  <FILES>...
+  <FILE>...
           A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
@@ -29,6 +29,12 @@ Options:
       --line-width <LINE-WIDTH>
           Plot latency line width [default: 1.5]
 
+      --key-from <REGEX>
+          Regex to find in the name of <FILE>, used to set key labels
+
+      --key-to <REPLACE>
+          Regex to replace the name of <FILE>, used to set key labels
+
   -o, --output <OUTPUT>
           Output plot file [default: gpwrk2.png]
 
@@ -43,6 +49,9 @@ Get some data:
 Plot from data:
   fd . -e wrk | gpwrk2
   gpwrk2 *.wrk
+
+Rename labels of graph:
+  fd . -e wrk | gpwrk2 --key-from '(\d{1,10})' --key-to '${1}-rate'
 ```
 
 Result:

@@ -11,7 +11,7 @@ env:
 
 jobs:
   tests:
-    name: '[bash-utils] Test on ${{ matrix.os }}'
+    name: '[Gnuplotting-Stuff] Test on ${{ matrix.os }}'
 
     runs-on: ${{ matrix.os }}
 
