@@ -33,3 +33,7 @@ disable=SC2046
 # Consider using { cmd1; cmd2; } >> file instead of individual redirects.
 # https://github.com/koalaman/shellcheck/wiki/SC2129
 disable=SC2129
+
+# Use "${array[@]}" (with quotes) to prevent whitespace problems.
+# https://github.com/koalaman/shellcheck/wiki/SC2048
+disable=SC2048
