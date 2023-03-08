@@ -42,7 +42,7 @@ jobs:
       run: make symlink
 
     - name: Test pwrk2 ${{ matrix.os }}
-      run: pwrk2 --help
+      run: source ~/.bash_profile; pwrk2 --help
 
     - name: Unsymlink scripts ${{ matrix.os }}
       run: make unsymlink
