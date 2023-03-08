@@ -58,8 +58,8 @@ Options:
       --key-margin <MARGIN>
           Bottom plot margin for key labels [default: 6]
 
-      --no-open
-          Don't open the plot after generation
+      --open <BOOL>
+          Whether or not should open the plot after generation [default: true] [possible values: true, false]
 
   -o, --output <OUTPUT>
           Output plot file [default: pwrk2.png]
