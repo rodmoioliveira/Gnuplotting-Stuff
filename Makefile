@@ -12,7 +12,7 @@ dependencies: ## Install dependencies
 code-fmt: ## Format bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -w
 
-code-fmt-check: ## Check format bash code
+code-fmt-check: ## Check format of bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -d
 
 code-lint: ## Run lint for bash files

@@ -1,6 +1,6 @@
 # pwrk2
 
-Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+Gnuplot script for plotting latency graphs from [wrk2](https://github.com/giltene/wrk2) `--latency` data.
 
 ## Usage
 

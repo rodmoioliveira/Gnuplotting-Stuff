@@ -11,7 +11,7 @@ readme() {
   cat <<EOF >|./wrk2/README.md
 # pwrk2
 
-$(2>&1 ./wrk2/pwrk2 -h | head -n1)
+Gnuplot script for plotting latency graphs from [wrk2](https://github.com/giltene/wrk2) \`--latency\` data.
 
 ## Usage
 

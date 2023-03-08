@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  TRACE: 0
+  TRACE: 1
 
 jobs:
   tests:
@@ -37,3 +37,12 @@ jobs:
 
     - name: Check typos ${{ matrix.os }}
       run: make typos
+
+    - name: Symlink scripts ${{ matrix.os }}
+      run: make symlink
+
+    - name: Test pwrk2 ${{ matrix.os }}
+      run: pwrk2 --help
+
+    - name: Unsymlink scripts ${{ matrix.os }}
+      run: make unsymlink
