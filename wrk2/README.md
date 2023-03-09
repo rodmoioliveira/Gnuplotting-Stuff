@@ -66,7 +66,8 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
-  -h, --help                      Print help information (use `--help` for more detail)
+  -h, --help
+          Print help information (use `--help` for more detail)
 
 Examples:
 
@@ -97,7 +98,7 @@ Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
 
 Bug Report:
-  If you wish to file a bug report or request some feature, please go to
+  If you wish to file a bug report, please go to
   https://github.com/rodmoioliveira/Gnuplotting-Stuff/issues
 ```
 
