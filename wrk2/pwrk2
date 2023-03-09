@@ -4,8 +4,8 @@
 ##
 ## TITLE:         pwrk2
 ## AUTHOR:        Rodolfo Mói de Oliveira
-## DESCRIPTION:   Gnuplot script for plotting latency graphs from
-##                wrk2 `--latency` data
+## DESCRIPTION:   pwrk2 is a Gnuplot script for plotting latency graphs
+##                from wrk2 `--latency` data.
 ## DATE:          07. Mar. 2023
 ## LICENSE:       MIT
 ##
@@ -89,7 +89,7 @@ usage_short() {
   local help_text
   help_text=$(
     cat <<"EOF"
-Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+pwrk2 is a Gnuplot script for plotting latency graphs from wrk2 `--latency` data.
 
 Usage: pwrk2 [OPTIONS] <FILE>...
 
@@ -122,7 +122,7 @@ usage_long() {
   local help_text
   help_text=$(
     cat <<"EOF"
-Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+pwrk2 is a Gnuplot script for plotting latency graphs from wrk2 `--latency` data.
 
 Usage:
   pwrk2 [OPTIONS] <FILE>...

@@ -1,6 +1,8 @@
 # pwrk2
 
-Gnuplot script for plotting latency graphs from [wrk2](https://github.com/giltene/wrk2) `--latency` data.
+pwrk2 is a Gnuplot script for plotting latency graphs from [wrk2](https://github.com/giltene/wrk2) `--latency` data.
+It takes its inspiration from the [original](https://github.com/HdrHistogram/HdrHistogram/blob/master/gnuplotExample/make_percentile_plot)
+Gnuplot script written by [Gil Tene](https://github.com/giltene).
 
 ## Dependencies
 
@@ -14,7 +16,7 @@ Gnuplot script for plotting latency graphs from [wrk2](https://github.com/gilten
 ## Usage
 
 ```txt
-Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+pwrk2 is a Gnuplot script for plotting latency graphs from wrk2 `--latency` data.
 
 Usage:
   pwrk2 [OPTIONS] <FILE>...
