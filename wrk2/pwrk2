@@ -391,6 +391,20 @@ arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
     OUTPUT_FILE="pwrk2.png"
   else
+    dir="$(dirname "${OUTPUT}")"
+    if [[ "${dir}" != "." && ! -d "$dir" ]]; then
+      if ! mkdir -p "${dir}"; then
+        printf 1>&2 "Couldn't create directory %s for output file ...\n" "${dir}"
+        exit 1
+      fi
+    fi
+
+    if [[ -d "${OUTPUT}" ]]; then
+        printf 1>&2 "Couldn't create file %s for output ...\n" "${OUTPUT}"
+        printf 1>&2 "%s is a directory\n" "${OUTPUT}"
+        exit 1
+    fi
+
     OUTPUT_FILE="${OUTPUT}"
   fi
 }
