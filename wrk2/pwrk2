@@ -50,13 +50,9 @@ mktempdir() {
 }
 
 wrk2_to_csv() {
-  if [[ "${VERBOSE}" == true ]]; then
-    printf 1>&2 "Processing files ... \n"
-  fi
-
   for file in ${FILES[*]}; do
     if [[ "${VERBOSE}" == true ]]; then
-      printf 1>&2 "  [Processing] %s ... " "${file}"
+      printf 1>&2 "[Processing] %s ... " "${file}"
     fi
 
     filename=$(echo "${file}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
@@ -249,24 +245,22 @@ deps_validate() {
   deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd")
   for dep in "${deps[@]}"; do
     if ! command -v "${dep}" &> /dev/null; then
-      summary+=("[Missing] ${dep}")
+      summary+=("[deps] ${dep} ... Missing!")
       is_valid=false
     else
-      summary+=("[OK] ${dep}")
+      summary+=("[deps] ${dep} ... OK")
     fi
   done
 
   if [[ "${is_valid}" == false ]]; then
     printf 1>&2 "You have missing dependencies.\n"
     printf 1>&2 "You must install the missing dependencies for pwrk2 work correctly.\n\n"
-    printf 1>&2 "  %s\n" "${summary[@]}"
+    printf 1>&2 "%s\n" "${summary[@]}"
     exit 1
   fi
 
   if [[ "${VERBOSE}" == true ]]; then
-    printf 1>&2 "Checking dependencies ...\n"
-    printf 1>&2 "  %s\n" "${summary[@]}"
-    printf 1>&2 "\n"
+    printf 1>&2 "%s\n" "${summary[@]}"
   fi
 }
 
@@ -414,8 +408,7 @@ calc_font_size() {
 
 plot_draw() {
   if [[ "${VERBOSE}" == true ]]; then
-    printf 1>&2 "\nGenerating plot ...\n"
-    printf 1>&2 "  [Plotting] %s ... " "${OUTPUT_FILE}"
+    printf 1>&2 "[Plotting] %s ... " "${OUTPUT_FILE}"
   fi
 
   local counter=1
