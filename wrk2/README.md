@@ -61,6 +61,9 @@ Options:
       --open <BOOL>
           Whether or not should open the plot after generation [default: true] [possible values: true, false]
 
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
   -o, --output <OUTPUT>
           Output plot file [default: pwrk2.png]
 
