@@ -25,10 +25,10 @@ Arguments:
 
 Options:
       --color-bg <COLOR>
-          Set background color [default: #f9f9f9]
+          Set background color [default: #ffffff]
 
       --color-fg <COLOR>
-          Set foreground color [default: #222222]
+          Set foreground color [default: #000000]
 
   -f, --font <FONT>
           Plot font [default: Merriweather]
@@ -72,19 +72,19 @@ Options:
 Examples:
 
   Get some data
-    wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.wrk
-    wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.wrk
-    wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
+    wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.hgrm
+    wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.hgrm
+    wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.hgrm
 
   Plot from data
-    fd . -e wrk | pwrk2
-    pwrk2 *.wrk
+    fd . -e hgrm | pwrk2
+    pwrk2 *.hgrm
 
   Rename plot labels
-    fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
+    fd . -e hgrm | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
 
   Change plot styles
-    fd . -e wrk | pwrk2 \
+    fd . -e hgrm | pwrk2 \
       --color-bg "#000000" \
       --color-fg "#ffffff" \
       --font 'Roboto' \
