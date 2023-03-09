@@ -11,31 +11,6 @@
 ##
 #########################################################################
 
-# TODO: rename all flags...
-# Gnuplot script for plotting latency graphs from wrk2 `--latency` data
-
-# Usage: pwrk2 [OPTIONS] <FILE>...
-
-# Arguments:
-#   <FILE>...    A list of space-separated FILES in wrk2 `--latency` format
-
-# Options:
-#   -b, --color-bg <COLOR>          Set background color [default: #f9f9f9]
-#   -f, --color-fg <COLOR>          Set foreground color [default: #222222]
-#   -f, --font <FONT>               Plot font [default: Merriweather]
-#   -g, --height <HEIGHT>           Plot height [default: 700]
-#   -l, --line <LINE-WIDTH>         Plot latency line width [default: 1.5]
-#   -k, --kmargin <MARGIN>          Bottom plot margin for key labels [default: 6]
-#   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
-#   -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
-#   -s, --scale <FONT-SCALE>        Plot font scale [default: 1]
-#   -t, --title <TITLE>             Plot title [default: Latency Distribution]
-#   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
-#   -w, --width <WIDTH>             Plot width [default: 1700]
-#       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
-#       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
-#   -h, --help                      Print help information (use `--help` for more detail)
-
 declare TRACE
 [[ "${TRACE}" == 1 ]] && set -o xtrace
 set -o errexit
@@ -50,7 +25,7 @@ WIDTH=1700
 HAS_KEYS=false
 KEY_MARGIN=6
 LINE_WIDTH=1.5
-OPEN_PLOT=true
+PREVIEW_PLOT=true
 VERBOSE=false
 COLOR_FG="#222222"
 COLOR_BG="#f9f9f9"
@@ -131,20 +106,20 @@ Arguments:
   <FILE>...    A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
-      --title <TITLE>             Plot title [default: Latency Distribution]
-      --color-fg <COLOR>          Set foreground color [default: #222222]
       --color-bg <COLOR>          Set background color [default: #f9f9f9]
-      --font <FONT>               Plot font [default: Merriweather]
-      --font-scale <FONT-SCALE>   Plot font scale [default: 1]
-      --height <HEIGHT>           Plot height [default: 700]
-      --width <WIDTH>             Plot width [default: 1700]
-      --line-width <LINE-WIDTH>   Plot latency line width [default: 1.5]
+      --color-fg <COLOR>          Set foreground color [default: #222222]
+  -f, --font <FONT>               Plot font [default: Merriweather]
+  -g, --height <HEIGHT>           Plot height [default: 700]
+  -l, --line <LINE-WIDTH>         Plot latency line width [default: 1.5]
+  -k, --kmargin <KMARGIN>         Bottom plot margin for key labels [default: 6]
+  -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
+  -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
+  -s, --scale <FONT-SCALE>        Plot font scale [default: 1]
+  -t, --title <TITLE>             Plot title [default: Latency Distribution]
+  -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
+  -w, --width <WIDTH>             Plot width [default: 1700]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
-      --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
-      --open <BOOL>               Whether or not should open the plot after generation [default: true] [possible values: true, false]
-  -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
-  -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
   )
@@ -166,29 +141,41 @@ Arguments:
           A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
-      --title <TITLE>
-          Plot title [default: Latency Distribution]
+      --color-bg <COLOR>
+          Set background color [default: #f9f9f9]
 
       --color-fg <COLOR>
           Set foreground color [default: #222222]
 
-      --color-bg <COLOR>
-          Set background color [default: #f9f9f9]
-
-      --font <FONT>
+  -f, --font <FONT>
           Plot font [default: Merriweather]
 
-      --font-scale <FONT-SCALE>
-          Plot font scale [default: 1]
-
-      --height <HEIGHT>
+  -g, --height <HEIGHT>
           Plot height [default: 700]
 
-      --width <WIDTH>
-          Plot width [default: 1700]
-
-      --line-width <LINE-WIDTH>
+  -l, --line <LINE-WIDTH>
           Plot latency line width [default: 1.5]
+
+  -k, --kmargin <KMARGIN>
+          Bottom plot margin for key labels [default: 6]
+
+  -o, --output <OUTPUT>
+          Output plot file [default: pwrk2.png]
+
+  -p, --preview <BOOL>
+          Whether or not should open the plot after generation [default: true] [possible values: true, false]
+
+  -s, --scale <FONT-SCALE>
+          Plot font scale [default: 1]
+
+  -t, --title <TITLE>
+          Plot title [default: Latency Distribution]
+
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
+  -w, --width <WIDTH>
+          Plot width [default: 1700]
 
       --key-from <REGEX>
           Regex to find in the name of <FILE>, used to set key labels
@@ -196,43 +183,39 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
-      --key-margin <MARGIN>
-          Bottom plot margin for key labels [default: 6]
+  -h, --help                      Print help information (use `--help` for more detail)
 
-      --open <BOOL>
-          Whether or not should open the plot after generation [default: true] [possible values: true, false]
+Examples:
 
-  -v, --verbose <BOOL>
-          Whether or not to be verbose [default: false] [possible values: true, false]
+  Get some data
+    wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.wrk
+    wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.wrk
+    wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
 
-  -o, --output <OUTPUT>
-          Output plot file [default: pwrk2.png]
+  Plot from data
+    fd . -e wrk | pwrk2
+    pwrk2 *.wrk
 
-  -h, --help
-          Print help information (use `-h` for a summary)
+  Rename plot labels
+    fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
 
-Get some data:
-  wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.wrk
-  wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.wrk
-  wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
+  Change plot styles
+    fd . -e wrk | pwrk2 \
+      --color-bg "#000000" \
+      --color-fg "#ffffff" \
+      --font 'Roboto' \
+      --scale 1.5 \
+      --line 3 \
+      --width 1500 \
+      --height 1200 \
+      --kmargin 7
 
-Plot from data:
-  fd . -e wrk | pwrk2
-  pwrk2 *.wrk
+Author:
+  Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
 
-Rename plot labels:
-  fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
-
-Change plot styles:
-  fd . -e wrk | pwrk2 \
-    --color-bg "#000000" \
-    --color-fg "#ffffff" \
-    --font 'Roboto' \
-    --font-scale 1.5 \
-    --line-width 3 \
-    --width 1500 \
-    --height 1200 \
-    --key-margin 7
+Bug Report:
+  If you wish to file a bug report or request some feature, please go to
+  https://github.com/rodmoioliveira/Gnuplotting-Stuff/issues
 EOF
   )
 
@@ -251,8 +234,8 @@ error_keys() {
   exit 1
 }
 
-error_open() {
-  printf 1>&2 "the flag --open <BOOL> must be 'true' or 'false' ...\n"
+error_preview() {
+  printf 1>&2 "the flag --preview <BOOL> must be 'true' or 'false' ...\n"
   printf 1>&2 "\nFor more information try '--help'\n"
   exit 1
 }
@@ -293,7 +276,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho:v: --long help,open:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,color-fg:,color-bg: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w: --long help,preview:,verbose:,output:,width:,height:,font:,title:,scale:,line:,key-from:,key-to:,kmargin:,color-fg:,color-bg: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -305,27 +288,27 @@ args_parse() {
       shift
       OUTPUT="$1"
       ;;
-    --width)
+    -w | --width)
       shift
       WIDTH="$1"
       ;;
-    --height)
+    -g | --height)
       shift
       HEIGHT="$1"
       ;;
-    --font)
+    -f | --font)
       shift
       FONT="$1"
       ;;
-    --font-scale)
+    -s | --scale)
       shift
       FONT_SCALE="$1"
       ;;
-    --line-width)
+    -l | --line)
       shift
       LINE_WIDTH="$1"
       ;;
-    --title)
+    -t | --title)
       shift
       TITLE="$1"
       ;;
@@ -337,7 +320,7 @@ args_parse() {
       shift
       KEY_TO="$1"
       ;;
-    --key-margin)
+    -k | --kmargin)
       shift
       KEY_MARGIN="$1"
       ;;
@@ -349,9 +332,9 @@ args_parse() {
       shift
       COLOR_BG="$1"
       ;;
-    --open)
+    -p | --preview)
       shift
-      OPEN_PLOT="$1"
+      PREVIEW_PLOT="$1"
       ;;
     -v | --verbose)
       shift
@@ -402,9 +385,9 @@ arg_key() {
   fi
 }
 
-arg_open() {
-  if ! [[ "${OPEN_PLOT}" == true || "${OPEN_PLOT}" == false ]]; then
-    error_open
+arg_preview() {
+  if ! [[ "${PREVIEW_PLOT}" == true || "${PREVIEW_PLOT}" == false ]]; then
+    error_preview
   fi
 }
 
@@ -424,7 +407,7 @@ arg_output() {
 
 args_validate() {
   arg_key
-  arg_open
+  arg_preview
   arg_verbose
   arg_output
 }
@@ -502,8 +485,8 @@ if [[ "${VERBOSE}" == true ]]; then
 fi
 }
 
-plot_open() {
-  if [[ "${OPEN_PLOT}" == true ]]; then
+plot_preview() {
+  if [[ "${PREVIEW_PLOT}" == true ]]; then
     unameOut="$(uname -s)"
 
     case "${unameOut}" in
@@ -521,7 +504,7 @@ main() {
   mktempdir
   wrk_to_csv
   plot_draw
-  plot_open
+  plot_preview
 }
 
 main "$@"

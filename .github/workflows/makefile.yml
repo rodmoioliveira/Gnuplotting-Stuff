@@ -42,7 +42,7 @@ jobs:
       run: make symlink
 
     - name: Test pwrk2 ${{ matrix.os }}
-      run: source ~/.bash_profile; pwrk2 --help; fd . -e wrk | pwrk2 --title "Title" --color-fg "#222222" --color-bg "#444444" --font "Arial" --font-scale 2 --height 800 --width 1600 --line-width 2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output out.png  --open false --key-margin 8 -v true
+      run: source ~/.bash_profile; pwrk2 --help; fd . -e wrk | pwrk2 --color-bg "black" --color-fg "white" --font Arial --height 800 --line 2 --kmargin 7 --output long.png --preview false --scale 2 --title Long --verbose false --width 1800 --key-from '(\d{1,10})' --key-to '${1} R/s'; fd . -e wrk | pwrk2 --color-bg "black" --color-fg "white" -f Arial -g 800 -l 2 -k 7 -o short.png -p false -s 2 -t Short -v true -w 1800 --key-from '(\d{1,10})' --key-to '${1} R/s'
 
     - name: Unsymlink scripts ${{ matrix.os }}
       run: make unsymlink
