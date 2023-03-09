@@ -47,16 +47,6 @@ mktempdir() {
     printf 1>&2 "Couldn't create %s\n" "${TMP_DIR_CSV}"
     exit 1
   fi
-
-  TMP_XLABELS_CSV="${TMP_DIR}/xlabels.csv"
-  echo "1.0,0.0,0" >"${TMP_XLABELS_CSV}"
-  echo "10.0,0.0,90%" >>"${TMP_XLABELS_CSV}"
-  echo "100.0,0.0,99%" >>"${TMP_XLABELS_CSV}"
-  echo "1000.0,0.0,99.9%" >>"${TMP_XLABELS_CSV}"
-  echo "10000.0,0.0,99.99%" >>"${TMP_XLABELS_CSV}"
-  echo "100000.0,0.0,99.999%" >>"${TMP_XLABELS_CSV}"
-  echo "1000000.0,0.0,99.9999%" >>"${TMP_XLABELS_CSV}"
-  echo "10000000.0,0.0,100%" >>"${TMP_XLABELS_CSV}"
 }
 
 wrk_to_csv() {
@@ -75,17 +65,17 @@ wrk_to_csv() {
     data_name=$(echo "${filename}" | eval "$sd_cmd")
 
     if [[ "${HAS_KEYS}" == true ]]; then
-      printf "percentile,%s\n" "${data_name}" >"${csv}"
+      printf "1/1-percentile,%s,percentile\n" "${data_name}" >"${csv}"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
         rg request -v |
         rg threads -v |
-        awk '{print $4","$1}' >>"${csv}"
+        awk '{print $4","$1","$2}' >>"${csv}"
     else
-      printf "percentile,%s\n" "${filename}" >"${csv}"
+      printf "1/1-percentile,%s,percentile\n" "${filename}" >"${csv}"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
         rg request -v |
         rg threads -v |
-        awk '{print $4","$1}' >>"${csv}"
+        awk '{print $4","$1","$2}' >>"${csv}"
     fi
 
     if [[ "${VERBOSE}" == true ]]; then
@@ -425,7 +415,7 @@ plot_draw() {
 
   local counter=1
   local -a csv_files
-  local plot_directives="plot '${TMP_XLABELS_CSV}' with labels center offset 0, -1 tc \"${COLOR_FG}\" notitle, '${TMP_XLABELS_CSV}' with points pt 1 lc \"${COLOR_FG}\" ps 2 notitle, "
+  local plot_directives="plot "
 
   while IFS= read -r q; do csv_files+=("${q}"); done < <(ls -1v "${TMP_DIR_CSV}")
   for csv in "${csv_files[@]}"; do
@@ -448,13 +438,14 @@ set ytics textcolor rgb "${COLOR_FG}"
 set title "${TITLE}" font "${FONT}-Bold,$(calc_font_size 24)"
 set datafile separator ','
 
-set tics out font ",$(calc_font_size 12)"
-set xtics rotate
+set tics out nomirror font ",$(calc_font_size 12)"
 set grid back xtics ytics
+set xrange [1.0:10000000.0]
+set xtics ("0%%" 1.0, "90%%" 10.0, "99%%" 100.0, "99.9%%" 1000.0, "99.99%%" 10000.0, "99.999%%" 100000.0, "99.9999%%" 1000000.0,"100%%" 10000000.0)
 
 set key bottom center outside autotitle columnhead font ",$(calc_font_size 14)" horizontal
 set ylabel "Milliseconds" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
-set xlabel "Percentile" offset 0,-1.5 font "${FONT}-Bold,$(calc_font_size 14)"
+set xlabel "Percentile" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 
 set style line  1 linecolor rgb '#a6cee3' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
 set style line  2 linecolor rgb '#1f78b4' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
@@ -470,10 +461,9 @@ set style line 11 linecolor rgb '#ffff99' linetype 1 linewidth ${LINE_WIDTH} poi
 set style line 12 linecolor rgb '#b15928' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
 
 set logscale x
-unset xtics
 set bmargin "${KEY_MARGIN}"
 
-set border back
+set border 3 linewidth 2
 set output "${OUTPUT_FILE}"
 
 set terminal pngcairo font ",$(calc_font_size 12)"
