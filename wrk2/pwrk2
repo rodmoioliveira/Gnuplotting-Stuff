@@ -65,11 +65,16 @@ wrk2_to_csv() {
     data_name=$(echo "${filename}" | eval "$sd_cmd")
 
     if [[ "${HAS_KEYS}" == true ]]; then
-      printf "1/1-percentile,%s,percentile\n" "${data_name}" >"${csv}"
+      # We remove any illegal filename characters that could be provided by the
+      # user when using the flags --key-from and --key-from. The CSV filenames
+      # use those flags to save the files in a temporary directory.
+      safe_filename=$(echo -e "${data_name}" | sd '[#&{}<?/$!:@+|=;, ]' "_" | sd '`' '_' | sd "'" '_' | sd '"' '_')
+
+      printf "1/1-percentile,%s,percentile\n" "${data_name}" >"${TMP_DIR_CSV}/${safe_filename}.csv"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
         rg request -v |
         rg threads -v |
-        awk '{print $4","$1","$2}' >>"${csv}"
+        awk '{print $4","$1","$2}' >>"${TMP_DIR_CSV}/${safe_filename}.csv"
     else
       printf "1/1-percentile,%s,percentile\n" "${filename}" >"${csv}"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
