@@ -10,7 +10,6 @@ Gnuplot script for plotting latency graphs from [wrk2](https://github.com/gilten
   - [gnuplot](http://www.gnuplot.info/)
   - [rg](https://github.com/BurntSushi/ripgrep)
   - [sd](https://github.com/chmln/sd)
-  - [sed](https://www.gnu.org/software/sed/manual/sed.html)
 
 ## Usage
 
