@@ -11,6 +11,31 @@
 ##
 #########################################################################
 
+# TODO: rename all flags...
+# Gnuplot script for plotting latency graphs from wrk2 `--latency` data
+
+# Usage: pwrk2 [OPTIONS] <FILE>...
+
+# Arguments:
+#   <FILE>...    A list of space-separated FILES in wrk2 `--latency` format
+
+# Options:
+#   -b, --color-bg <COLOR>          Set background color [default: #f9f9f9]
+#   -f, --color-fg <COLOR>          Set foreground color [default: #222222]
+#   -f, --font <FONT>               Plot font [default: Merriweather]
+#   -g, --height <HEIGHT>           Plot height [default: 700]
+#   -l, --line <LINE-WIDTH>         Plot latency line width [default: 1.5]
+#   -k, --kmargin <MARGIN>          Bottom plot margin for key labels [default: 6]
+#   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
+#   -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
+#   -s, --scale <FONT-SCALE>        Plot font scale [default: 1]
+#   -t, --title <TITLE>             Plot title [default: Latency Distribution]
+#   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
+#   -w, --width <WIDTH>             Plot width [default: 1700]
+#       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
+#       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
+#   -h, --help                      Print help information (use `--help` for more detail)
+
 declare TRACE
 [[ "${TRACE}" == 1 ]] && set -o xtrace
 set -o errexit
@@ -75,17 +100,17 @@ wrk_to_csv() {
     data_name=$(echo "${filename}" | eval "$sd_cmd")
 
     if [[ "${HAS_KEYS}" == true ]]; then
+      printf "percentile,%s\n" "${data_name}" >"${csv}"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
         rg request -v |
         rg threads -v |
-        awk '{print $4","$1}' |
-        sed '1i percentile,'"${data_name}"'' >"${csv}"
+        awk '{print $4","$1}' >>"${csv}"
     else
+      printf "percentile,%s\n" "${filename}" >"${csv}"
       rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
         rg request -v |
         rg threads -v |
-        awk '{print $4","$1}' |
-        sed '1i percentile,'"${filename}"'' >"${csv}"
+        awk '{print $4","$1}' >>"${csv}"
     fi
 
     if [[ "${VERBOSE}" == true ]]; then
@@ -242,7 +267,7 @@ deps_validate() {
   summary=()
   is_valid=true
 
-  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "sed")
+  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd")
   for dep in "${deps[@]}"; do
     if ! command -v "${dep}" &> /dev/null; then
       summary+=("[Missing] ${dep}")
