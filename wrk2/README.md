@@ -25,29 +25,41 @@ Arguments:
           A list of space-separated FILES in wrk2 `--latency` format
 
 Options:
-      --title <TITLE>
-          Plot title [default: Latency Distribution]
+      --color-bg <COLOR>
+          Set background color [default: #f9f9f9]
 
       --color-fg <COLOR>
           Set foreground color [default: #222222]
 
-      --color-bg <COLOR>
-          Set background color [default: #f9f9f9]
-
-      --font <FONT>
+  -f, --font <FONT>
           Plot font [default: Merriweather]
 
-      --font-scale <FONT-SCALE>
-          Plot font scale [default: 1]
-
-      --height <HEIGHT>
+  -g, --height <HEIGHT>
           Plot height [default: 700]
 
-      --width <WIDTH>
-          Plot width [default: 1700]
-
-      --line-width <LINE-WIDTH>
+  -l, --line <LINE-WIDTH>
           Plot latency line width [default: 1.5]
+
+  -k, --kmargin <KMARGIN>
+          Bottom plot margin for key labels [default: 6]
+
+  -o, --output <OUTPUT>
+          Output plot file [default: pwrk2.png]
+
+  -p, --preview <BOOL>
+          Whether or not should open the plot after generation [default: true] [possible values: true, false]
+
+  -s, --scale <FONT-SCALE>
+          Plot font scale [default: 1]
+
+  -t, --title <TITLE>
+          Plot title [default: Latency Distribution]
+
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
+  -w, --width <WIDTH>
+          Plot width [default: 1700]
 
       --key-from <REGEX>
           Regex to find in the name of <FILE>, used to set key labels
@@ -55,43 +67,39 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
-      --key-margin <MARGIN>
-          Bottom plot margin for key labels [default: 6]
+  -h, --help                      Print help information (use `--help` for more detail)
 
-      --open <BOOL>
-          Whether or not should open the plot after generation [default: true] [possible values: true, false]
+Examples:
 
-  -v, --verbose <BOOL>
-          Whether or not to be verbose [default: false] [possible values: true, false]
+  Get some data
+    wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.wrk
+    wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.wrk
+    wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
 
-  -o, --output <OUTPUT>
-          Output plot file [default: pwrk2.png]
+  Plot from data
+    fd . -e wrk | pwrk2
+    pwrk2 *.wrk
 
-  -h, --help
-          Print help information (use `-h` for a summary)
+  Rename plot labels
+    fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
 
-Get some data:
-  wrk2 -t1 -c1 -d30s -R1 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 1.wrk
-  wrk2 -t8 -c10 -d30s -R10 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 10.wrk
-  wrk2 -t8 -c25 -d30s -R25 --latency "http://jsonplaceholder.typicode.com/todos/1" | tee 25.wrk
+  Change plot styles
+    fd . -e wrk | pwrk2 \
+      --color-bg "#000000" \
+      --color-fg "#ffffff" \
+      --font 'Roboto' \
+      --scale 1.5 \
+      --line 3 \
+      --width 1500 \
+      --height 1200 \
+      --kmargin 7
 
-Plot from data:
-  fd . -e wrk | pwrk2
-  pwrk2 *.wrk
+Author:
+  Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
 
-Rename plot labels:
-  fd . -e wrk | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
-
-Change plot styles:
-  fd . -e wrk | pwrk2 \
-    --color-bg "#000000" \
-    --color-fg "#ffffff" \
-    --font 'Roboto' \
-    --font-scale 1.5 \
-    --line-width 3 \
-    --width 1500 \
-    --height 1200 \
-    --key-margin 7
+Bug Report:
+  If you wish to file a bug report or request some feature, please go to
+  https://github.com/rodmoioliveira/Gnuplotting-Stuff/issues
 ```
 
 ## Result
