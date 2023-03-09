@@ -26,6 +26,7 @@ HAS_KEYS=false
 KEY_MARGIN=6
 LINE_WIDTH=1.5
 OPEN_PLOT=true
+VERBOSE=false
 COLOR_FG="#222222"
 COLOR_BG="#f9f9f9"
 
@@ -59,7 +60,15 @@ mktempdir() {
 }
 
 wrk_to_csv() {
+  if [[ "${VERBOSE}" == true ]]; then
+    printf 1>&2 "Processing files ... \n"
+  fi
+
   for file in ${FILES[*]}; do
+    if [[ "${VERBOSE}" == true ]]; then
+      printf 1>&2 "  [Processing] %s ... " "${file}"
+    fi
+
     filename=$(echo "${file}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
     csv="${TMP_DIR_CSV}/${filename}.csv"
     sd_cmd="sd '${KEY_FROM}' '${KEY_TO}'"
@@ -77,6 +86,10 @@ wrk_to_csv() {
         rg threads -v |
         awk '{print $4","$1}' |
         sed '1i percentile,'"${filename}"'' >"${csv}"
+    fi
+
+    if [[ "${VERBOSE}" == true ]]; then
+      printf 1>&2 "Done!\n"
     fi
   done
 }
@@ -105,6 +118,7 @@ Options:
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
       --key-margin <MARGIN>       Bottom plot margin for key labels [default: 6]
       --open <BOOL>               Whether or not should open the plot after generation [default: true] [possible values: true, false]
+  -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -163,6 +177,9 @@ Options:
       --open <BOOL>
           Whether or not should open the plot after generation [default: true] [possible values: true, false]
 
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
   -o, --output <OUTPUT>
           Output plot file [default: pwrk2.png]
 
@@ -215,6 +232,12 @@ error_open() {
   exit 1
 }
 
+error_verbose() {
+  printf 1>&2 "the flag --verbose <BOOL> must be 'true' or 'false' ...\n"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
+}
+
 deps_validate() {
   summary=()
   is_valid=true
@@ -230,16 +253,22 @@ deps_validate() {
   done
 
   if [[ "${is_valid}" == false ]]; then
-    2>&1 printf "You have missing dependencies.\n"
-    2>&1 printf "You must install the missing dependencies for pwrk2 work correctly.\n\n"
-    2>&1 printf "%s\n" "${summary[@]}"
+    printf 1>&2 "You have missing dependencies.\n"
+    printf 1>&2 "You must install the missing dependencies for pwrk2 work correctly.\n\n"
+    printf 1>&2 "  %s\n" "${summary[@]}"
     exit 1
+  fi
+
+  if [[ "${VERBOSE}" == true ]]; then
+    printf 1>&2 "Checking dependencies ...\n"
+    printf 1>&2 "  %s\n" "${summary[@]}"
+    printf 1>&2 "\n"
   fi
 }
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho: --long help,open:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,color-fg:,color-bg: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho:v: --long help,open:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,key-margin:,color-fg:,color-bg: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -299,6 +328,10 @@ args_parse() {
       shift
       OPEN_PLOT="$1"
       ;;
+    -v | --verbose)
+      shift
+      VERBOSE="$1"
+      ;;
     -h)
       usage_short
       exit 0
@@ -350,6 +383,12 @@ arg_open() {
   fi
 }
 
+arg_verbose() {
+  if ! [[ "${VERBOSE}" == true || "${VERBOSE}" == false ]]; then
+    error_verbose
+  fi
+}
+
 arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
     OUTPUT_FILE="pwrk2.png"
@@ -361,6 +400,7 @@ arg_output() {
 args_validate() {
   arg_key
   arg_open
+  arg_verbose
   arg_output
 }
 
@@ -369,6 +409,11 @@ calc_font_size() {
 }
 
 plot_draw() {
+  if [[ "${VERBOSE}" == true ]]; then
+    printf 1>&2 "\nGenerating plot ...\n"
+    printf 1>&2 "  [Plotting] %s ... " "${OUTPUT_FILE}"
+  fi
+
   local counter=1
   local -a csv_files
   local plot_directives="plot '${TMP_XLABELS_CSV}' with labels center offset 0, -1 tc \"${COLOR_FG}\" notitle, '${TMP_XLABELS_CSV}' with points pt 1 lc \"${COLOR_FG}\" ps 2 notitle, "
@@ -426,6 +471,10 @@ set terminal pngcairo font ",$(calc_font_size 12)"
 $(echo "${plot_directives}" | sd ", $" '')
 exit
 EOF
+
+if [[ "${VERBOSE}" == true ]]; then
+  printf 1>&2 "Done!\n"
+fi
 }
 
 plot_open() {
@@ -441,9 +490,9 @@ plot_open() {
 }
 
 main() {
-  deps_validate
   args_parse "$@"
   args_validate
+  deps_validate
   mktempdir
   wrk_to_csv
   plot_draw
