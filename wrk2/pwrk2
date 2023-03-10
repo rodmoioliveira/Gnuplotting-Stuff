@@ -31,6 +31,9 @@ COLOR_FG="#000000"
 COLOR_BG="#ffffff"
 SLA_NEW_FILE=""
 SLA_PLOT_FILE=()
+LATENCY_UNIT="ms"
+LATENCY_DIVISION_FACTOR=1
+LATENCY_UNIT_LABEL="milliseconds"
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -111,9 +114,10 @@ Options:
   -t, --title <TITLE>             Plot title [default: Latency Distribution]
   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
   -w, --width <WIDTH>             Plot width [default: 1700]
+  -u, --unit <UNIT>               Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
-      --sla-new <SLA-NEW>         Create a new SLA file in CSV format
+      --sla-new <SLA-NEW>         Create a new SLA file in CSV format (2nd column unit measurement: ms)
       --sla-plot <SLA_PLOT>       Plot the SLA file with the latency data
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -172,6 +176,9 @@ Options:
   -w, --width <WIDTH>
           Plot width [default: 1700]
 
+  -u, --unit <UNIT>
+          Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
+
       --key-from <REGEX>
           Regex to find in the name of <FILE>, used to set key labels
 
@@ -179,7 +186,7 @@ Options:
           Regex to replace the name of <FILE>, used to set key labels
 
       --sla-new <SLA-NEW>
-          Create a new SLA file in CSV format
+          Create a new SLA file in CSV format (2nd column unit measurement: ms)
 
       --sla-plot <SLA_PLOT>
           Plot SLA file with the latency data
@@ -249,6 +256,12 @@ error_preview() {
   exit 1
 }
 
+error_unit() {
+  printf 1>&2 "the flag --unit <UNIT> must be 'ms' or 's' ...\n"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
+}
+
 error_verbose() {
   printf 1>&2 "the flag --verbose <BOOL> must be 'true' or 'false' ...\n"
   printf 1>&2 "\nFor more information try '--help'\n"
@@ -261,7 +274,7 @@ deps_validate() {
 
   deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd")
   for dep in "${deps[@]}"; do
-    if ! command -v "${dep}" &> /dev/null; then
+    if ! command -v "${dep}" &>/dev/null; then
       summary+=("[deps] ${dep} ... Missing!")
       is_valid=false
     else
@@ -283,7 +296,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w: --long help,preview:,verbose:,output:,width:,height:,font:,title:,scale:,line:,key-from:,key-to:,kmargin:,color-fg:,color-bg:,sla-new:,sla-plot: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w:u: --long help,preview:,verbose:,output:,width:,height:,font:,title:,scale:,line:,key-from:,key-to:,kmargin:,color-fg:,color-bg:,sla-new:,sla-plot:,unit: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -355,6 +368,10 @@ args_parse() {
       shift
       SLA_PLOT_FILE+=("$1")
       ;;
+    -u | --unit)
+      shift
+      LATENCY_UNIT="$1"
+      ;;
     -h)
       usage_short
       exit 0
@@ -402,6 +419,22 @@ arg_key() {
   fi
 }
 
+arg_unit() {
+  case "${LATENCY_UNIT}" in
+  ms)
+    LATENCY_UNIT_LABEL="milliseconds"
+    LATENCY_DIVISION_FACTOR=1
+    ;;
+  s)
+    LATENCY_UNIT_LABEL="seconds"
+    LATENCY_DIVISION_FACTOR=1000
+    ;;
+  *)
+    error_unit
+    ;;
+  esac
+}
+
 arg_preview() {
   if ! [[ "${PREVIEW_PLOT}" == true || "${PREVIEW_PLOT}" == false ]]; then
     error_preview
@@ -427,9 +460,9 @@ arg_output() {
     fi
 
     if [[ -d "${OUTPUT}" ]]; then
-        printf 1>&2 "Couldn't create file %s for output ...\n" "${OUTPUT}"
-        printf 1>&2 "%s is a directory\n" "${OUTPUT}"
-        exit 1
+      printf 1>&2 "Couldn't create file %s for output ...\n" "${OUTPUT}"
+      printf 1>&2 "%s is a directory\n" "${OUTPUT}"
+      exit 1
     fi
 
     OUTPUT_FILE="${OUTPUT}"
@@ -447,23 +480,23 @@ arg_sla_new() {
     fi
 
     if [[ -d "${SLA_NEW_FILE}" ]]; then
-        printf 1>&2 "Couldn't create file %s for sla ...\n" "${SLA_NEW_FILE}"
-        printf 1>&2 "%s is a directory\n" "${SLA_NEW_FILE}"
-        exit 1
+      printf 1>&2 "Couldn't create file %s for sla ...\n" "${SLA_NEW_FILE}"
+      printf 1>&2 "%s is a directory\n" "${SLA_NEW_FILE}"
+      exit 1
     fi
 
     sla_name=$(echo "${SLA_NEW_FILE}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
 
-    printf "1/1-percentile,%s,percentile\n" "${sla_name}">| "${SLA_NEW_FILE}"
-    printf "0.0,25.0,0%%\n">>"${SLA_NEW_FILE}"
-    printf "1.0,25.0,0%%\n">>"${SLA_NEW_FILE}"
-    printf "10.0,25.0,90%%\n">>"${SLA_NEW_FILE}"
-    printf "100.0,30.0,99%%\n">>"${SLA_NEW_FILE}"
-    printf "1000.0,40.0,99.9%%\n">>"${SLA_NEW_FILE}"
-    printf "10000.0,40.0,99.99%%\n">>"${SLA_NEW_FILE}"
-    printf "100000.0,100.0,99.999%%\n">>"${SLA_NEW_FILE}"
-    printf "1000000.0,100.0,99.9999%%\n">>"${SLA_NEW_FILE}"
-    printf "10000000.0,100.0,100%%\n">>"${SLA_NEW_FILE}"
+    printf "1/1-percentile,%s,percentile\n" "${sla_name}" >|"${SLA_NEW_FILE}"
+    printf "0.0,25.0,0%%\n" >>"${SLA_NEW_FILE}"
+    printf "1.0,25.0,0%%\n" >>"${SLA_NEW_FILE}"
+    printf "10.0,25.0,90%%\n" >>"${SLA_NEW_FILE}"
+    printf "100.0,30.0,99%%\n" >>"${SLA_NEW_FILE}"
+    printf "1000.0,40.0,99.9%%\n" >>"${SLA_NEW_FILE}"
+    printf "10000.0,40.0,99.99%%\n" >>"${SLA_NEW_FILE}"
+    printf "100000.0,100.0,99.999%%\n" >>"${SLA_NEW_FILE}"
+    printf "1000000.0,100.0,99.9999%%\n" >>"${SLA_NEW_FILE}"
+    printf "10000000.0,100.0,100%%\n" >>"${SLA_NEW_FILE}"
   fi
 }
 
@@ -472,6 +505,7 @@ args_validate() {
   arg_preview
   arg_verbose
   arg_output
+  arg_unit
   arg_sla_new
 }
 
@@ -490,12 +524,22 @@ plot_draw() {
 
   while IFS= read -r q; do csv_files+=("${q}"); done < <(ls -1v "${TMP_DIR_CSV}")
   for csv in "${csv_files[@]}"; do
-    plot_directives+=$(printf '"%s" using 1:2 with lines linestyle %d, ' "${TMP_DIR_CSV}/${csv}" "${counter}")
+    plot_directives+=$(
+      printf '"%s" using 1:(column(2) / %s) with lines linestyle %d, ' \
+        "${TMP_DIR_CSV}/${csv}" \
+        "${LATENCY_DIVISION_FACTOR}" \
+        "${counter}"
+    )
     counter=$((counter + 1))
   done
 
   for sla in "${SLA_PLOT_FILE[@]}"; do
-    plot_directives+=$(printf '"%s" using 1:2 with steps linewidth %s dashtype 4, ' "${sla}" "${LINE_WIDTH}")
+    plot_directives+=$(
+      printf '"%s" using 1:(column(2) / %s) with steps linewidth %s dashtype 4, ' \
+        "${sla}" \
+        "${LATENCY_DIVISION_FACTOR}" \
+        "${LINE_WIDTH}"
+    )
   done
 
   gnuplot <<EOF
@@ -519,7 +563,7 @@ set xrange [1.0:10000000.0]
 set xtics ("0%%" 1.0, "90%%" 10.0, "99%%" 100.0, "99.9%%" 1000.0, "99.99%%" 10000.0, "99.999%%" 100000.0, "99.9999%%" 1000000.0,"100%%" 10000000.0)
 
 set key bottom center outside autotitle columnhead font ",$(calc_font_size 14)" horizontal
-set ylabel "Milliseconds" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
+set ylabel "Response Time (${LATENCY_UNIT_LABEL})" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 set xlabel "Percentile" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 
 set style line  1 linecolor rgb '#a6cee3' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
@@ -546,9 +590,9 @@ $(echo "${plot_directives}" | sd ", $" '')
 exit
 EOF
 
-if [[ "${VERBOSE}" == true ]]; then
-  printf 1>&2 "Done!\n"
-fi
+  if [[ "${VERBOSE}" == true ]]; then
+    printf 1>&2 "Done!\n"
+  fi
 }
 
 plot_preview() {
@@ -556,9 +600,9 @@ plot_preview() {
     unameOut="$(uname -s)"
 
     case "${unameOut}" in
-      Linux*) xdg-open "${OUTPUT_FILE}" ;;
-      Darwin*) open "${OUTPUT_FILE}" ;;
-      CYGWIN* | MINGW* | *) ;;
+    Linux*) xdg-open "${OUTPUT_FILE}" ;;
+    Darwin*) open "${OUTPUT_FILE}" ;;
+    CYGWIN* | MINGW* | *) ;;
     esac
   fi
 }

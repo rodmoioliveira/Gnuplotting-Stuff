@@ -62,6 +62,9 @@ Options:
   -w, --width <WIDTH>
           Plot width [default: 1700]
 
+  -u, --unit <UNIT>
+          Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
+
       --key-from <REGEX>
           Regex to find in the name of <FILE>, used to set key labels
 
@@ -69,7 +72,7 @@ Options:
           Regex to replace the name of <FILE>, used to set key labels
 
       --sla-new <SLA-NEW>
-          Create a new SLA file in CSV format
+          Create a new SLA file in CSV format (2nd column unit measurement: ms)
 
       --sla-plot <SLA_PLOT>
           Plot SLA file with the latency data

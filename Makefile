@@ -11,9 +11,11 @@ dependencies: ## Install dependencies
 
 code-fmt: ## Format bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -w
+	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
 
 code-fmt-check: ## Check format of bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -d
+	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -d
 
 code-lint: ## Run lint for bash files
 	@fd . -t f -e sh --absolute-path | xargs shellcheck -o all
