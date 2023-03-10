@@ -41,8 +41,8 @@ jobs:
     - name: Symlink scripts ${{ matrix.os }}
       run: make symlink
 
-    - name: Test pwrk2 ${{ matrix.os }}
-      run: source ~/.bash_profile; pwrk2 --help; fd . -e hgrm | pwrk2 --color-bg "black" --color-fg "white" --font Arial --height 800 --line 2 --kmargin 7 --output long.png --preview false --scale 2 --title Long --verbose false --width 1800 --key-from '(\d{1,10})' --key-to '${1} R/s'; fd . -e hgrm | pwrk2 --color-bg "black" --color-fg "white" -f Arial -g 800 -l 2 -k 7 -o short.png -p false -s 2 -t Short -v true -w 1800 --key-from '(\d{1,10})' --key-to '${1} R/s' -ums; pwrk2 --sla-new client1.sla; pwrk2 --sla-new client2.sla; fd . -e hgrm | pwrk2 --sla-plot client1.sla --sla-plot client2.sla --preview false -us;
+    - name: Run tests ${{ matrix.os }}
+      run: make tests
 
     - name: Unsymlink scripts ${{ matrix.os }}
       run: make unsymlink

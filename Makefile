@@ -12,10 +12,12 @@ dependencies: ## Install dependencies
 code-fmt: ## Format bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -w
 	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
+	@fd tests -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
 
 code-fmt-check: ## Check format of bash files
 	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -d
 	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -d
+	@fd tests -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
 
 code-lint: ## Run lint for bash files
 	@fd . -t f -e sh --absolute-path | xargs shellcheck -o all
@@ -30,6 +32,9 @@ readme: ## Write README.md
 	@./dev/readme
 	@./wrk2/dev/readme
 
+tests: ## Run tests
+	@./dev/tests
+
 typos: ## Check typos
 	@typos
 
@@ -43,6 +48,7 @@ typos-fix: ## Fix typos
 .PHONY: dependencies
 .PHONY: readme
 .PHONY: symlink
+.PHONY: tests
 .PHONY: typos
 .PHONY: typos-fix
 .PHONY: unsymlink
