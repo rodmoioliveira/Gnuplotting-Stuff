@@ -518,7 +518,8 @@ plot_draw() {
     printf 1>&2 "[Plotting] %s ... " "${OUTPUT_FILE}"
   fi
 
-  local counter=1
+  local counter_latency=1
+  local counter_sla=101
   local -a csv_files
   local plot_directives="plot "
 
@@ -528,18 +529,19 @@ plot_draw() {
       printf '"%s" using 1:(column(2) / %s) with lines linestyle %d, ' \
         "${TMP_DIR_CSV}/${csv}" \
         "${LATENCY_DIVISION_FACTOR}" \
-        "${counter}"
+        "${counter_latency}"
     )
-    counter=$((counter + 1))
+    counter_latency=$((counter_latency + 1))
   done
 
   for sla in "${SLA_PLOT_FILE[@]}"; do
     plot_directives+=$(
-      printf '"%s" using 3:(column(1) / %s) with steps linewidth %s dashtype 4, ' \
+      printf '"%s" using 3:(column(1) / %s) with steps linestyle %d, ' \
         "${sla}" \
         "${LATENCY_DIVISION_FACTOR}" \
-        "${LINE_WIDTH}"
+        "${counter_sla}"
     )
+    counter_sla=$((counter_sla + 1))
   done
 
   gnuplot <<EOF
@@ -566,18 +568,24 @@ set key bottom center outside autotitle columnhead font ",$(calc_font_size 14)" 
 set ylabel "Response Time (${LATENCY_UNIT_LABEL})" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 set xlabel "Percentile" offset 0,0 font "${FONT}-Bold,$(calc_font_size 14)"
 
-set style line  1 linecolor rgb '#a6cee3' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  2 linecolor rgb '#1f78b4' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  3 linecolor rgb '#b2df8a' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  4 linecolor rgb '#33a02c' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  5 linecolor rgb '#fb9a99' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  6 linecolor rgb '#e31a1c' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  7 linecolor rgb '#fdbf6f' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  8 linecolor rgb '#ff7f00' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line  9 linecolor rgb '#cab2d6' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line 10 linecolor rgb '#6a3d9a' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line 11 linecolor rgb '#ffff99' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
-set style line 12 linecolor rgb '#b15928' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  1 linecolor rgb '#1f78b4' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  2 linecolor rgb '#6a3d9a' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  3 linecolor rgb '#33a02c' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  4 linecolor rgb '#fb9a99' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  5 linecolor rgb '#e31a1c' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  6 linecolor rgb '#ff7f00' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  7 linecolor rgb '#cab2d6' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  8 linecolor rgb '#b15928' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line  9 linecolor rgb '#a6cee3' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line 10 linecolor rgb '#b2df8a' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line 11 linecolor rgb '#fdbf6f' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+set style line 12 linecolor rgb '#ffff99' linetype 1 linewidth ${LINE_WIDTH} pointtype 1 pointsize 1
+
+set style line 101 linecolor rgb '#67001f' linewidth ${LINE_WIDTH} dashtype 2
+set style line 102 linecolor rgb '#980043' linewidth ${LINE_WIDTH} dashtype 2
+set style line 103 linecolor rgb '#ce1256' linewidth ${LINE_WIDTH} dashtype 2
+set style line 104 linecolor rgb '#e7298a' linewidth ${LINE_WIDTH} dashtype 2
+set style line 105 linecolor rgb '#df65b0' linewidth ${LINE_WIDTH} dashtype 2
 
 set logscale x
 set bmargin "${KEY_MARGIN}"
