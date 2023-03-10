@@ -72,13 +72,13 @@ Options:
           Regex to replace the name of <FILE>, used to set key labels
 
       --sla-new <SLA-NEW>
-          Create a new SLA file in CSV format (2nd column unit measurement: ms)
+          Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
 
       --sla-plot <SLA_PLOT>
           Plot SLA file with the latency data
 
   -h, --help
-          Print help information (use `--help` for more detail)
+          Print help information (use `-h` for a summary)
 
 Examples:
 
@@ -105,7 +105,7 @@ Examples:
       --height 1200 \
       --kmargin 7
 
-  Create one or more SLA files. Then edit them to meet your specifications:
+  Create one or more SLA files. Then edit the 1st column to meet your SLA requirements:
     pwrk2 --sla-new client1.sla
     pwrk2 --sla-new client2.sla
 

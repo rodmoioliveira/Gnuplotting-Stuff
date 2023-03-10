@@ -117,7 +117,7 @@ Options:
   -u, --unit <UNIT>               Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
-      --sla-new <SLA-NEW>         Create a new SLA file in CSV format (2nd column unit measurement: ms)
+      --sla-new <SLA-NEW>         Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
       --sla-plot <SLA_PLOT>       Plot the SLA file with the latency data
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
@@ -186,13 +186,13 @@ Options:
           Regex to replace the name of <FILE>, used to set key labels
 
       --sla-new <SLA-NEW>
-          Create a new SLA file in CSV format (2nd column unit measurement: ms)
+          Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
 
       --sla-plot <SLA_PLOT>
           Plot SLA file with the latency data
 
   -h, --help
-          Print help information (use `--help` for more detail)
+          Print help information (use `-h` for a summary)
 
 Examples:
 
@@ -219,7 +219,7 @@ Examples:
       --height 1200 \
       --kmargin 7
 
-  Create one or more SLA files. Then edit them to meet your specifications:
+  Create one or more SLA files. Then edit the 1st column to meet your SLA requirements:
     pwrk2 --sla-new client1.sla
     pwrk2 --sla-new client2.sla
 
@@ -487,16 +487,16 @@ arg_sla_new() {
 
     sla_name=$(echo "${SLA_NEW_FILE}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
 
-    printf "1/1-percentile,%s,percentile\n" "${sla_name}" >|"${SLA_NEW_FILE}"
-    printf "0.0,25.0,0%%\n" >>"${SLA_NEW_FILE}"
-    printf "1.0,25.0,0%%\n" >>"${SLA_NEW_FILE}"
-    printf "10.0,25.0,90%%\n" >>"${SLA_NEW_FILE}"
-    printf "100.0,30.0,99%%\n" >>"${SLA_NEW_FILE}"
-    printf "1000.0,40.0,99.9%%\n" >>"${SLA_NEW_FILE}"
-    printf "10000.0,40.0,99.99%%\n" >>"${SLA_NEW_FILE}"
-    printf "100000.0,100.0,99.999%%\n" >>"${SLA_NEW_FILE}"
-    printf "1000000.0,100.0,99.9999%%\n" >>"${SLA_NEW_FILE}"
-    printf "10000000.0,100.0,100%%\n" >>"${SLA_NEW_FILE}"
+    printf "%s,percentile,1/1-percentile\n" "${sla_name}" >|"${SLA_NEW_FILE}"
+    printf "25.0,0%%,0.0\n" >>"${SLA_NEW_FILE}"
+    printf "25.0,0%%,1.0\n" >>"${SLA_NEW_FILE}"
+    printf "25.0,90%%,10.0\n" >>"${SLA_NEW_FILE}"
+    printf "40.0,99%%,100.0\n" >>"${SLA_NEW_FILE}"
+    printf "40.0,99.9%%,1000.0\n" >>"${SLA_NEW_FILE}"
+    printf "40.0,99.99%%,10000.0\n" >>"${SLA_NEW_FILE}"
+    printf "100.0,99.999%%,100000.0\n" >>"${SLA_NEW_FILE}"
+    printf "100.0,99.9999%%,1000000.0\n" >>"${SLA_NEW_FILE}"
+    printf "100.0,100%%,10000000.0\n" >>"${SLA_NEW_FILE}"
   fi
 }
 
@@ -535,7 +535,7 @@ plot_draw() {
 
   for sla in "${SLA_PLOT_FILE[@]}"; do
     plot_directives+=$(
-      printf '"%s" using 1:(column(2) / %s) with steps linewidth %s dashtype 4, ' \
+      printf '"%s" using 3:(column(1) / %s) with steps linewidth %s dashtype 4, ' \
         "${sla}" \
         "${LATENCY_DIVISION_FACTOR}" \
         "${LINE_WIDTH}"
@@ -585,7 +585,6 @@ set bmargin "${KEY_MARGIN}"
 set border 3 linewidth 2
 set output "${OUTPUT_FILE}"
 
-set terminal pngcairo font ",$(calc_font_size 12)"
 $(echo "${plot_directives}" | sd ", $" '')
 exit
 EOF

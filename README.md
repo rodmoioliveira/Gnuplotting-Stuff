@@ -11,3 +11,4 @@
   - http://www.gnuplotting.org/
   - https://github.com/Koushikphy/CheatSheets/blob/master/cheatsheets/gnuplot_cheatsheet.md
   - https://github.com/iselab-dearborn/gnuplot-scripts
+  - http://www.gnuplot.info/docs_5.5/Gnuplot_5_5.pdf
