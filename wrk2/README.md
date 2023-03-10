@@ -35,35 +35,11 @@ Options:
   -f, --font <FONT>
           Plot font [default: Merriweather]
 
-  -g, --height <HEIGHT>
-          Plot height [default: 700]
-
-  -l, --line <LINE-WIDTH>
-          Plot latency line width [default: 1.5]
-
-  -k, --kmargin <KMARGIN>
-          Bottom plot margin for key labels [default: 6]
-
-  -o, --output <OUTPUT>
-          Output plot file [default: pwrk2.png]
-
-  -p, --preview <BOOL>
-          Whether or not should open the plot after generation [default: true] [possible values: true, false]
-
-  -s, --scale <FONT-SCALE>
+  -s, --font-scale <FONT-SCALE>
           Plot font scale [default: 1]
 
-  -t, --title <TITLE>
-          Plot title [default: Latency Distribution]
-
-  -v, --verbose <BOOL>
-          Whether or not to be verbose [default: false] [possible values: true, false]
-
-  -w, --width <WIDTH>
-          Plot width [default: 1700]
-
-  -u, --unit <UNIT>
-          Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
+  -g, --height <HEIGHT>
+          Plot height [default: 700]
 
       --key-from <REGEX>
           Regex to find in the name of <FILE>, used to set key labels
@@ -71,11 +47,35 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
+  -k, --kmargin <KMARGIN>
+          Bottom plot margin for key labels [default: 6]
+
+  -l, --line-width <LINE-WIDTH>
+          Plot latency line width [default: 1.5]
+
+  -o, --output <OUTPUT>
+          Output plot file [default: pwrk2.png]
+
+  -p, --preview <BOOL>
+          Whether or not should open the plot after generation [default: true] [possible values: true, false]
+
       --sla-new <SLA-NEW>
           Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
 
       --sla-plot <SLA_PLOT>
-          Plot SLA file with the latency data
+          Plot the SLA file with the latency data
+
+  -t, --title <TITLE>
+          Plot title [default: Latency Distribution]
+
+  -u, --unit <UNIT>
+          Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
+
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
+  -w, --width <WIDTH>
+          Plot width [default: 1700]
 
   -h, --help
           Print help information (use `-h` for a summary)
@@ -99,8 +99,8 @@ Examples:
       --color-bg "#000000" \
       --color-fg "#ffffff" \
       --font 'Roboto' \
-      --scale 1.5 \
-      --line 3 \
+      --font-scale 1.5 \
+      --line-width 3 \
       --width 1500 \
       --height 1200 \
       --kmargin 7
