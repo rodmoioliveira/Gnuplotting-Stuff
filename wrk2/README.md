@@ -68,6 +68,12 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
+      --sla-new <SLA-NEW>
+          Create a new SLA file in CSV format
+
+      --sla-plot <SLA_PLOT>
+          Plot SLA file with the latency data
+
   -h, --help
           Print help information (use `--help` for more detail)
 
@@ -95,6 +101,13 @@ Examples:
       --width 1500 \
       --height 1200 \
       --kmargin 7
+
+  Create one or more SLA files. Then edit them to meet your specifications:
+    pwrk2 --sla-new client1.sla
+    pwrk2 --sla-new client2.sla
+
+  Plot the data with the SLA files:
+    fd . -e hgrm | pwrk2 --sla-plot client1.sla --sla-plot client2.sla
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)

@@ -29,6 +29,8 @@ PREVIEW_PLOT=true
 VERBOSE=false
 COLOR_FG="#000000"
 COLOR_BG="#ffffff"
+SLA_NEW_FILE=""
+SLA_PLOT_FILE=()
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -111,6 +113,8 @@ Options:
   -w, --width <WIDTH>             Plot width [default: 1700]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
+      --sla-new <SLA-NEW>         Create a new SLA file in CSV format
+      --sla-plot <SLA_PLOT>       Plot the SLA file with the latency data
   -h, --help                      Print help information (use `--help` for more detail)
 EOF
   )
@@ -174,6 +178,12 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
+      --sla-new <SLA-NEW>
+          Create a new SLA file in CSV format
+
+      --sla-plot <SLA_PLOT>
+          Plot SLA file with the latency data
+
   -h, --help
           Print help information (use `--help` for more detail)
 
@@ -201,6 +211,13 @@ Examples:
       --width 1500 \
       --height 1200 \
       --kmargin 7
+
+  Create one or more SLA files. Then edit them to meet your specifications:
+    pwrk2 --sla-new client1.sla
+    pwrk2 --sla-new client2.sla
+
+  Plot the data with the SLA files:
+    fd . -e hgrm | pwrk2 --sla-plot client1.sla --sla-plot client2.sla
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
@@ -266,7 +283,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w: --long help,preview:,verbose:,output:,width:,height:,font:,title:,scale:,line:,key-from:,key-to:,kmargin:,color-fg:,color-bg: -- "$@"); then
+  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w: --long help,preview:,verbose:,output:,width:,height:,font:,title:,scale:,line:,key-from:,key-to:,kmargin:,color-fg:,color-bg:,sla-new:,sla-plot: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -330,6 +347,14 @@ args_parse() {
       shift
       VERBOSE="$1"
       ;;
+    --sla-new)
+      shift
+      SLA_NEW_FILE="$1"
+      ;;
+    --sla-plot)
+      shift
+      SLA_PLOT_FILE+=("$1")
+      ;;
     -h)
       usage_short
       exit 0
@@ -347,18 +372,20 @@ args_parse() {
     shift
   done
 
-  if [[ -p /dev/stdin ]]; then
-    FILES="$(cat -)"
+  if [[ -z "${SLA_NEW_FILE}" ]]; then
+    if [[ -p /dev/stdin ]]; then
+      FILES="$(cat -)"
 
-    if [[ -z "${FILES}" ]]; then
-      error_no_input
-    fi
-  else
-    FILES=()
-    while IFS= read -r i; do FILES+=("${i}"); done < <(echo "$@")
+      if [[ -z "${FILES}" ]]; then
+        error_no_input
+      fi
+    else
+      FILES=()
+      while IFS= read -r i; do FILES+=("${i}"); done < <(echo "$@")
 
-    if [[ -z "${FILES[*]}" ]]; then
-      error_no_input
+      if [[ -z "${FILES[*]}" ]]; then
+        error_no_input
+      fi
     fi
   fi
 }
@@ -409,11 +436,43 @@ arg_output() {
   fi
 }
 
+arg_sla_new() {
+  if [[ -n "${SLA_NEW_FILE}" ]]; then
+    dir="$(dirname "${SLA_NEW_FILE}")"
+    if [[ "${dir}" != "." && ! -d "$dir" ]]; then
+      if ! mkdir -p "${dir}"; then
+        printf 1>&2 "Couldn't create directory %s for sla file ...\n" "${dir}"
+        exit 1
+      fi
+    fi
+
+    if [[ -d "${SLA_NEW_FILE}" ]]; then
+        printf 1>&2 "Couldn't create file %s for sla ...\n" "${SLA_NEW_FILE}"
+        printf 1>&2 "%s is a directory\n" "${SLA_NEW_FILE}"
+        exit 1
+    fi
+
+    sla_name=$(echo "${SLA_NEW_FILE}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
+
+    printf "1/1-percentile,%s,percentile\n" "${sla_name}">| "${SLA_NEW_FILE}"
+    printf "0.0,25.0,0%%\n">>"${SLA_NEW_FILE}"
+    printf "1.0,25.0,0%%\n">>"${SLA_NEW_FILE}"
+    printf "10.0,25.0,90%%\n">>"${SLA_NEW_FILE}"
+    printf "100.0,30.0,99%%\n">>"${SLA_NEW_FILE}"
+    printf "1000.0,40.0,99.9%%\n">>"${SLA_NEW_FILE}"
+    printf "10000.0,40.0,99.99%%\n">>"${SLA_NEW_FILE}"
+    printf "100000.0,100.0,99.999%%\n">>"${SLA_NEW_FILE}"
+    printf "1000000.0,100.0,99.9999%%\n">>"${SLA_NEW_FILE}"
+    printf "10000000.0,100.0,100%%\n">>"${SLA_NEW_FILE}"
+  fi
+}
+
 args_validate() {
   arg_key
   arg_preview
   arg_verbose
   arg_output
+  arg_sla_new
 }
 
 calc_font_size() {
@@ -433,6 +492,10 @@ plot_draw() {
   for csv in "${csv_files[@]}"; do
     plot_directives+=$(printf '"%s" using 1:2 with lines linestyle %d, ' "${TMP_DIR_CSV}/${csv}" "${counter}")
     counter=$((counter + 1))
+  done
+
+  for sla in "${SLA_PLOT_FILE[@]}"; do
+    plot_directives+=$(printf '"%s" using 1:2 with steps linewidth %s dashtype 4, ' "${sla}" "${LINE_WIDTH}")
   done
 
   gnuplot <<EOF
@@ -504,10 +567,13 @@ main() {
   args_parse "$@"
   args_validate
   deps_validate
-  mktempdir
-  wrk2_to_csv
-  plot_draw
-  plot_preview
+
+  if [[ -z "${SLA_NEW_FILE}" ]]; then
+    mktempdir
+    wrk2_to_csv
+    plot_draw
+    plot_preview
+  fi
 }
 
 main "$@"
