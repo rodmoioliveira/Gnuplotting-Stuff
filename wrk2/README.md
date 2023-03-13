@@ -62,7 +62,7 @@ Options:
       --sla-new <SLA-NEW>
           Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
 
-      --sla-plot <SLA_PLOT>
+      --sla-plot <SLA-PLOT>
           Plot the SLA file with the latency data
 
   -t, --title <TITLE>

@@ -114,7 +114,7 @@ Options:
   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
       --sla-new <SLA-NEW>         Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
-      --sla-plot <SLA_PLOT>       Plot the SLA file with the latency data
+      --sla-plot <SLA-PLOT>       Plot the SLA file with the latency data
   -t, --title <TITLE>             Plot title [default: Latency Distribution]
   -u, --unit <UNIT>               Latency measurement unit, milliseconds or seconds [default: ms] [possible values: ms, s]
   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
@@ -176,7 +176,7 @@ Options:
       --sla-new <SLA-NEW>
           Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
 
-      --sla-plot <SLA_PLOT>
+      --sla-plot <SLA-PLOT>
           Plot the SLA file with the latency data
 
   -t, --title <TITLE>

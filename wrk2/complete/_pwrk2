@@ -1,0 +1,26 @@
+#compdef pwrk2
+
+_pwrk2() {
+  _arguments -s \
+    '*:input arg:_files' \
+    '--color-bg=[Set background color]:COLOR' \
+    '--color-fg=[Set foreground color]:COLOR' \
+    {-f,--font=}'[Plot font]:FONT' \
+    {-s,--font-scale=}'[Plot font scale]:FONT-SCALE' \
+    {-g,--height=}'[Plot height]:HEIGHT' \
+    '--key-from=[Regex to find in the name of <FILE>, used to set key labels]:REGEX' \
+    '--key-to=[Regex to replace the name of <FILE>, used to set key labels]:REPLACE' \
+    {-k,--kmargin=}'[Bottom plot margin for key labels]:KEY-MARGIN' \
+    {-l,--line-width=}'[Plot latency line width]:LINE-WIDTH' \
+    {-o,--output=}'[Output plot file]:OUTPUT:_files' \
+    {-p,--preview=}'[Whether or not should open the plot after generation]:BOOL:((true false))' \
+    '--sla-new=[Create a new SLA file in CSV format (only edit the 1st column value)]:SLA-NEW:_files' \
+    '--sla-plot=[Plot the SLA file with the latency data]:SLA-PLOT:_files' \
+    {-t,--title=}'[Plot title]:TITLE' \
+    {-u,--unit=}'[Latency measurement unit, milliseconds or seconds]:UNIT:((ms s))' \
+    {-v,--verbose=}'[Whether or not to be verbose]:BOOL:((true false))' \
+    {-w,--width=}'[Plot width]:WIDTH' \
+    '(: - *)'{-h,--help}'[Print help information]'
+}
+
+_pwrk2 "$@"
