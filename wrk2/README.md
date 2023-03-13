@@ -47,7 +47,7 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
-  -k, --kmargin <KMARGIN>
+  -k, --kmargin <KEY-MARGIN>
           Bottom plot margin for key labels [default: 6]
 
   -l, --line-width <LINE-WIDTH>

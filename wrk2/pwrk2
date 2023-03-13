@@ -109,7 +109,7 @@ Options:
   -g, --height <HEIGHT>           Plot height [default: 700]
       --key-from <REGEX>          Regex to find in the name of <FILE>, used to set key labels
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
-  -k, --kmargin <KMARGIN>         Bottom plot margin for key labels [default: 6]
+  -k, --kmargin <KEY-MARGIN>      Bottom plot margin for key labels [default: 6]
   -l, --line-width <LINE-WIDTH>   Plot latency line width [default: 1.5]
   -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
   -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
@@ -161,7 +161,7 @@ Options:
       --key-to <REPLACE>
           Regex to replace the name of <FILE>, used to set key labels
 
-  -k, --kmargin <KMARGIN>
+  -k, --kmargin <KEY-MARGIN>
           Bottom plot margin for key labels [default: 6]
 
   -l, --line-width <LINE-WIDTH>
