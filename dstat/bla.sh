@@ -12,8 +12,8 @@ clean_tempdir() {
 
 trap clean_tempdir EXIT
 
-DSTAT_FILE="data/dstat/data.dstat"
-# DSTAT_FILE="dstat2.log"
+# TODO: create cli flags!
+DSTAT_FILE="$1"
 
 mktempdir() {
   if ! TMP_DIR=$(mktemp -d -t gnuplot-dstat-XXXXXXXXXX); then
@@ -68,6 +68,11 @@ dstat_to_csv() {
   numfmt_cmd=""
   multiplot_layout_lines=0
 
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "system/time" --line-number); then
+    time_column=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    sd_cmd+=' | sd "system/time" "time"'
+  fi
+
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "total-cpu-usage/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
@@ -80,7 +85,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "total-cpu-usage/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -98,7 +104,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "procs/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -116,7 +123,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "memory-usage/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -134,7 +142,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "dsk/total/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -152,7 +161,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "net/total/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -170,7 +180,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "swap/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -188,7 +199,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "filesystem/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -206,7 +218,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "virtual-memory/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -224,7 +237,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "io/total/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -242,7 +256,8 @@ dstat_to_csv() {
         sd '\n' ' ' |
         sd ', $' '' |
         sd '(.+)' 'plot $1' |
-        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "system/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
@@ -250,7 +265,7 @@ dstat_to_csv() {
 
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
   awk 'NR > 2 { print }' "${DSTAT_FILE}" |
-    sd '(^\d{2}-\d{2}) ((\d{2}:){2}\d{2})' '${1}_${2}' |
+    sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
     sd -s '|' ' ' |
     sd ' {1,1000}' ' ' |
     sd '^ ' '' |
@@ -260,7 +275,11 @@ dstat_to_csv() {
     tac |
     sort -k1 >>"${CSV_PARSED}"
 
-  cat "${CSV_PARSED}" | sd '(^\d{2})(-)(\d{2})_(\d{2}:\d{2}:\d{2})(.+)' '$1/$3-$4${5}' | sd '(\d)k' '${1}K' | sd '(\d)B' '${1}' >|"${CSV_SORTED}"
+  cat "${CSV_PARSED}" |
+    sd '(^\d{2})(-)(\d{2})_(\d{2}:\d{2}:\d{2})(.+)' '$1/$3-$4${5}' |
+    sd '(\d)k' '${1}K' |
+    sd '(\d)B' '${1}' >"${CSV_SORTED}"
+
   eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" | tee "${CSV_NUMFMT}"
 }
 
