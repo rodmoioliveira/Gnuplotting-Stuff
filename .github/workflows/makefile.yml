@@ -29,10 +29,10 @@ jobs:
     - name: Install dependencies ${{ matrix.os }}
       run: make dependencies
 
-    - name:  Check format bash code ${{ matrix.os }}
+    - name: Check format bash code ${{ matrix.os }}
       run: make code-fmt-check
 
-    - name:  Check lint bash code ${{ matrix.os }}
+    - name: Check lint bash code ${{ matrix.os }}
       run: make code-lint
 
     - name: Check typos ${{ matrix.os }}

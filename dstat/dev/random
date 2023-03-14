@@ -1,0 +1,169 @@
+#!/bin/bash
+
+declare TRACE
+[[ "${TRACE}" == 1 ]] && set -o xtrace
+set -o errexit
+set -o pipefail
+set -o noclobber
+
+TIMER=600
+
+generate_dstat() {
+  dstat --time --cpu 1 "${TIMER}" | tee data/dstat/cpu.dstat &
+  dstat --time --disk 1 "${TIMER}" | tee data/dstat/disk.dstat &
+  dstat --time --page 1 "${TIMER}" | tee data/dstat/page.dstat &
+  dstat --time --int 1 "${TIMER}" | tee data/dstat/int.dstat &
+  dstat --time --load 1 "${TIMER}" | tee data/dstat/load.dstat &
+  dstat --time --mem 1 "${TIMER}" | tee data/dstat/mem.dstat &
+  dstat --time --net 1 "${TIMER}" | tee data/dstat/net.dstat &
+  dstat --time --proc 1 "${TIMER}" | tee data/dstat/proc.dstat &
+  dstat --time --io 1 "${TIMER}" | tee data/dstat/io.dstat &
+  dstat --time --swap 1 "${TIMER}" | tee data/dstat/swap.dstat &
+  dstat --time --sys 1 "${TIMER}" | tee data/dstat/sys.dstat &
+  dstat --time --aio 1 "${TIMER}" | tee data/dstat/aio.dstat &
+  dstat --time --fs 1 "${TIMER}" | tee data/dstat/fs.dstat &
+  dstat --time --ipc 1 "${TIMER}" | tee data/dstat/ipc.dstat &
+  dstat --time --lock 1 "${TIMER}" | tee data/dstat/lock.dstat &
+  dstat --time --raw 1 "${TIMER}" | tee data/dstat/raw.dstat &
+  dstat --time --socket 1 "${TIMER}" | tee data/dstat/socket.dstat &
+  dstat --time --tcp 1 "${TIMER}" | tee data/dstat/tpc.dstat &
+  dstat --time --udp 1 "${TIMER}" | tee data/dstat/udp.dstat &
+  dstat --time --unix 1 "${TIMER}" | tee data/dstat/unix.dstat &
+  dstat --time --vm 1 "${TIMER}" | tee data/dstat/vm.dstat &
+  dstat --time --vm-adv 1 "${TIMER}" | tee data/dstat/vm-adv.dstat &
+  dstat --time --zones 1 "${TIMER}" | tee data/dstat/zones.dstat &
+  dstat --time \
+    --cpu \
+    --disk \
+    --page \
+    --int \
+    --load \
+    --mem \
+    --net \
+    --proc \
+    --io \
+    --swap \
+    --sys \
+    --aio \
+    --fs \
+    --ipc \
+    --lock \
+    --raw \
+    --socket \
+    --tcp \
+    --udp \
+    --unix \
+    --vm \
+    --vm-adv \
+    --zones 1 "${TIMER}" | tee data/dstat/all.dstat &
+  dstat \
+    --cpu \
+    --disk \
+    --page \
+    --int \
+    --load \
+    --mem \
+    --net \
+    --proc \
+    --io \
+    --swap \
+    --sys \
+    --aio \
+    --fs \
+    --ipc \
+    --lock \
+    --raw \
+    --socket \
+    --tcp \
+    --udp \
+    --unix \
+    --vm \
+    --vm-adv \
+    --zones 1 "${TIMER}" | tee data/dstat/all_with_default_time.dstat
+  sleep 10
+}
+
+plot_dstat() {
+  ./pdstat -p "false" -o data/plot/cpu.png data/dstat/cpu.dstat &
+  ./pdstat -p "false" -o data/plot/disk.png data/dstat/disk.dstat &
+  ./pdstat -p "false" -o data/plot/page.png data/dstat/page.dstat &
+  ./pdstat -p "false" -o data/plot/int.png data/dstat/int.dstat &
+  ./pdstat -p "false" -o data/plot/load.png data/dstat/load.dstat &
+  ./pdstat -p "false" -o data/plot/mem.png data/dstat/mem.dstat &
+  ./pdstat -p "false" -o data/plot/net.png data/dstat/net.dstat &
+  ./pdstat -p "false" -o data/plot/proc.png data/dstat/proc.dstat &
+  ./pdstat -p "false" -o data/plot/io.png data/dstat/io.dstat &
+  ./pdstat -p "false" -o data/plot/swap.png data/dstat/swap.dstat &
+  ./pdstat -p "false" -o data/plot/sys.png data/dstat/sys.dstat &
+  ./pdstat -p "false" -o data/plot/aio.png data/dstat/aio.dstat &
+  ./pdstat -p "false" -o data/plot/fs.png data/dstat/fs.dstat &
+  ./pdstat -p "false" -o data/plot/ipc.png data/dstat/ipc.dstat &
+  ./pdstat -p "false" -o data/plot/lock.png data/dstat/lock.dstat &
+  ./pdstat -p "false" -o data/plot/raw.png data/dstat/raw.dstat &
+  ./pdstat -p "false" -o data/plot/socket.png data/dstat/socket.dstat &
+  ./pdstat -p "false" -o data/plot/tpc.png data/dstat/tpc.dstat &
+  ./pdstat -p "false" -o data/plot/udp.png data/dstat/udp.dstat &
+  ./pdstat -p "false" -o data/plot/unix.png data/dstat/unix.dstat &
+  ./pdstat -p "false" -o data/plot/vm.png data/dstat/vm.dstat &
+  ./pdstat -p "false" -o data/plot/vm-adv.png data/dstat/vm-adv.dstat &
+  ./pdstat -p "false" -o data/plot/zones.png data/dstat/zones.dstat &
+  ./pdstat -p "false" -o data/plot/all.png data/dstat/all.dstat &
+  ./pdstat -p "false" -o data/plot/all_with_default_time.png data/dstat/all_with_default_time.dstat
+  sleep 10
+}
+
+generate_random_dstat() {
+  path="data"
+  local -a generate
+  local -a filenames
+  local -a pngs
+  array_counter=0
+
+  for i in $(seq 1 20); do
+    echo "Random genetarion ${i}"
+    dstat_cmd=$(
+      echo -e --cpu --disk --page --int --load --mem --net --proc --io --swap --sys --aio --fs --ipc --lock --raw --socket --tcp --udp --unix --vm --vm-adv --zones --time |
+        sd ' ' '\n' |
+        shuf |
+        head -n $(shuf -i 3-12 -n1) |
+        sd '\n' ' ' |
+        sd ' $' '\n' |
+        sd '(.+)' 'dstat $1 1 num' |
+        sd 'num' "${TIMER}"
+    )
+    dstat_filename=$(
+      echo "${dstat_cmd}" |
+        sd ' ' '\n' |
+        rg -- '--' |
+        sd '\n' ' ' |
+        sd -- '--' '' |
+        sd ' $' '' |
+        sd ' ' '_'
+    )
+    file="${path}/dstat/${dstat_filename}.dstat"
+    png="${path}/plot/${dstat_filename}.png"
+    filenames+=("${file}")
+    pngs+=("${png}")
+    generate+=("${dstat_cmd} | tee ${file} &")
+  done
+
+  for c in "${generate[@]}"; do eval "${c}"; done
+  sleep $(echo "${TIMER} + 10" | bc)
+  for f in "${filenames[@]}"; do
+    eval "./pdstat -p false -o ${pngs[${array_counter}]} ${f} &"
+    array_counter=$((array_counter + 1))
+  done
+}
+
+open_plots() {
+  fd . -e png | rg plot | xargs -n1 xdg-open
+}
+
+main() {
+  # generate_dstat
+  # generate_random_dstat
+  plot_dstat
+  # open_plots
+}
+
+main

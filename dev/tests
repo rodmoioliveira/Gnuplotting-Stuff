@@ -7,6 +7,7 @@ set -o nounset
 set -o pipefail
 set -o noclobber
 
+# TODO: add tests for dstat CI
 test_pwrk2() {
   source ~/.bash_profile
   pwrk2 --help
@@ -53,8 +54,43 @@ test_pwrk2() {
   rm client1.sla client2.sla long.png pwrk2.png short.png
 }
 
+test_pdstat() {
+  source ~/.bash_profile
+  pdstat --help
+  fd . -t f -e dstat |
+    shuf -n1 |
+    xargs pdstat \
+      --color-bg "black" \
+      --color-fg "white" \
+      --font Arial \
+      --font-scale 1.1 \
+      --height 330 \
+      --line-width 2 \
+      --output long.png \
+      --preview false \
+      --title Long \
+      --verbose false \
+      --width 1500
+
+  fd . -t f -e dstat |
+    shuf -n1 |
+    xargs pdstat \
+      --color-bg "black" \
+      --color-fg "white" \
+      -f Arial \
+      -s 1.1 \
+      -g 330 \
+      -l 2 \
+      -o short.png \
+      -p false \
+      -t Short \
+      -v true \
+      -w 1500
+}
+
 main() {
   test_pwrk2
+  test_pdstat
 }
 
 main
