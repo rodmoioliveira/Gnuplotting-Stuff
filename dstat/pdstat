@@ -14,6 +14,7 @@ trap clean_tempdir EXIT
 
 # TODO: create cli flags!
 DSTAT_FILE="$1"
+OUTPUT_FILE="$1.png"
 
 mktempdir() {
   if ! TMP_DIR=$(mktemp -d -t gnuplot-dstat-XXXXXXXXXX); then
@@ -152,6 +153,318 @@ dstat_to_csv() {
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "paging/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_paging=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "paging/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "interrupts/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_interrupts=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "interrupts/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "load-avg/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_load_avg=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "load-avg/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "async/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_async_io=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "async/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "sysv-ipc/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_sysv_ipc=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "sysv-ipc/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "file-locks/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_file_locks=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "file-locks/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "raw/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_raw=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "raw/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "tcp-sockets/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_tcp=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "tcp-sockets/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "sockets/" --line-number | rg -F "tcp-sockets/" -v | rg -F "unix-sockets/" -v); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_sockets=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "sockets/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "unix-sockets/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_unix_sockets=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "unix-sockets/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "udp/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_udp=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "udp/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "zones-memory/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_zone_memory=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "zones-memory/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "dsk/total" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     numfmt_cmd+=$(
@@ -230,7 +543,7 @@ dstat_to_csv() {
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "filesystem/inodes" --line-number); then
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "filesystem/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     numfmt_cmd+=$(
       echo "${line_numbers}" |
@@ -240,7 +553,7 @@ dstat_to_csv() {
         sd -- '-$' '' |
         sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
     )
-    plot_filesystem_inodes=$(
+    plot_filesystem=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
         sd '"' "'" |
@@ -256,7 +569,7 @@ dstat_to_csv() {
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "virtual-memory/" --line-number); then
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "virtual-memory/" --line-number | rg -F "advanced-virtual-memory/" -v); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     numfmt_cmd+=$(
       echo "${line_numbers}" |
@@ -279,6 +592,32 @@ dstat_to_csv() {
         sd "using 1" "using ${time_column}"
     )
     sd_cmd+=' | sd "virtual-memory/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "advanced-virtual-memory/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
+    plot_virtual_memory_advanced=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\"" |
+        sd "using 1" "using ${time_column}"
+    )
+    sd_cmd+=' | sd "advanced-virtual-memory/" ""'
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
@@ -354,11 +693,10 @@ dstat_to_csv() {
     sd '(\d)B' '${1}' >"${CSV_SORTED}"
 
   # Final phase
-  eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" | tee "${CSV_NUMFMT}"
+  eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT}"
 }
 
 plot_draw() {
-  OUTPUT_FILE="data/plot/multiplot.png"
   height=$(echo "${multiplot_layout_lines} * 330" | bc)
 
   gnuplot <<EOF
@@ -396,6 +734,12 @@ $(echo "${plot_memory_usage}")
 set title "Virtual Memory (Bytes)" font "Merriweather-Bold,18"
 $(echo "${plot_virtual_memory}")
 
+set title "Virtual Memory Advanced (Bytes)" font "Merriweather-Bold,18"
+$(echo "${plot_virtual_memory_advanced}")
+
+set title "Zone Memory" font "Merriweather-Bold,18"
+$(echo "${plot_zone_memory}")
+
 set title "Network (Bytes)" font "Merriweather-Bold,18"
 $(echo "${plot_net_total}")
 
@@ -415,9 +759,40 @@ set title "Swap" font "Merriweather-Bold,18"
 $(echo "${plot_swap}")
 
 set title "Filesystem" font "Merriweather-Bold,18"
-$(echo "${plot_filesystem_inodes}")
-exit
+$(echo "${plot_filesystem}")
 
+set title "Paging" font "Merriweather-Bold,18"
+$(echo "${plot_paging}")
+
+set title "Interrupts" font "Merriweather-Bold,18"
+$(echo "${plot_interrupts}")
+
+set title "Load Average" font "Merriweather-Bold,18"
+$(echo "${plot_load_avg}")
+
+set title "Async IO" font "Merriweather-Bold,18"
+$(echo "${plot_async_io}")
+
+set title "IPC" font "Merriweather-Bold,18"
+$(echo "${plot_sysv_ipc}")
+
+set title "IPC" font "Merriweather-Bold,18"
+$(echo "${plot_file_locks}")
+
+set title "Raw" font "Merriweather-Bold,18"
+$(echo "${plot_raw}")
+
+set title "Sockets" font "Merriweather-Bold,18"
+$(echo "${plot_sockets}")
+
+set title "Unix Sockets" font "Merriweather-Bold,18"
+$(echo "${plot_unix_sockets}")
+
+set title "TCP" font "Merriweather-Bold,18"
+$(echo "${plot_tcp}")
+
+set title "UDP" font "Merriweather-Bold,18"
+$(echo "${plot_udp}")
 exit
 EOF
 }
