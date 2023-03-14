@@ -16,6 +16,11 @@ trap clean_tempdir EXIT
 DSTAT_FILE="$1"
 OUTPUT_FILE="$1.png"
 
+error_no_time() {
+  printf 1>&2 "\nTODO: no time!\n"
+  exit 1
+}
+
 mktempdir() {
   if ! TMP_DIR=$(mktemp -d -t gnuplot-dstat-XXXXXXXXXX); then
     printf 1>&2 "Couldn't create %s\n" "${TMP_DIR}"
@@ -35,6 +40,7 @@ dstat_to_csv() {
   local -a headers_parsed_new_line
   while IFS= read -r q; do headers+=("${q}"); done < <(
     cat "${DSTAT_FILE}" |
+      sd -- 'async' '--async--' |
       sd -- '- ' '-|' |
       sd -- '-{2,}' '' |
       sd -s -- '-|' '|' |
@@ -54,7 +60,8 @@ dstat_to_csv() {
       sd '\|' '\n' |
       sd '^ {1,1000}' '' |
       sd ' {2,1000}' ' ' |
-      sd ' {0,1000}\n' '\n'
+      sd ' {0,1000}\n' '\n' |
+      sd  '#' ''
   )
 
   for hs in "${headers_stats[@]}"; do
@@ -73,6 +80,8 @@ dstat_to_csv() {
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "system/time" --line-number); then
     time_column=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     sd_cmd+=' | sd "system/time" "time"'
+  else
+    error_no_time
   fi
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "total-cpu-usage/" --line-number); then
@@ -694,6 +703,24 @@ dstat_to_csv() {
 
   # Final phase
   eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT}"
+
+  # echo "headers =========================="
+  # echo "${headers[@]}" | sd ' ' '\n'
+  # echo "headers_stats =========================="
+  # echo "${headers_stats[@]}" | sd ' ' '\n'
+  # echo "headers_parsed =========================="
+  # echo "${headers_parsed[@]}" | sd ' ' '\n'
+  # echo "headers_parsed_new_line =========================="
+  # echo "${headers_parsed_new_line[@]}"
+
+  # echo "DSTAT_FILE =========================="
+  # cat "${DSTAT_FILE}" | head -n2
+  # echo "CSV_PARSED =========================="
+  # cat "${CSV_PARSED}" | head -n1 | sd ',' '\n'
+  # echo "CSV_SORTED =========================="
+  # cat "${CSV_SORTED}" | head -n1 | sd ',' '\n'
+  # echo "CSV_NUMFMT =========================="
+  # cat "${CSV_NUMFMT}" | head -n1 | sd ',' '\n'
 }
 
 plot_draw() {
@@ -776,7 +803,7 @@ $(echo "${plot_async_io}")
 set title "IPC" font "Merriweather-Bold,18"
 $(echo "${plot_sysv_ipc}")
 
-set title "IPC" font "Merriweather-Bold,18"
+set title "File Locks" font "Merriweather-Bold,18"
 $(echo "${plot_file_locks}")
 
 set title "Raw" font "Merriweather-Bold,18"
