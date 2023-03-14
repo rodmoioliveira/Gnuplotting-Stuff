@@ -45,7 +45,7 @@ dstat_to_csv() {
       sd -- '-{2,}' '' |
       sd -s -- '-|' '|' |
       sd -s -- '|-' '|' |
-      sd  '(\w)-$' '$1' |
+      sd '(\w)-$' '$1' |
       head -n1 |
       sd '\|' '\n'
   )
@@ -61,13 +61,13 @@ dstat_to_csv() {
       sd '^ {1,1000}' '' |
       sd ' {2,1000}' ' ' |
       sd ' {0,1000}\n' '\n' |
-      sd  '#' ''
+      sd '#' ''
   )
 
   for hs in "${headers_stats[@]}"; do
     local -a stats
     while IFS= read -r q; do stats+=("${q}"); done < <(echo "${hs}" | sd ' ' '\n')
-    for s in "${stats[@]}"; do headers_parsed+=("${headers[${array_counter}]}/$s"); done
+    for s in "${stats[@]}"; do headers_parsed+=("${headers[${array_counter}]}/${s}"); done
     stats=()
     array_counter=$((array_counter + 1))
   done
