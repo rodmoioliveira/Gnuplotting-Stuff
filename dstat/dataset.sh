@@ -6,7 +6,7 @@ set -o errexit
 set -o pipefail
 set -o noclobber
 
-TIMER=5
+TIMER=300
 
 generate_dstat() {
   dstat --time --cpu 1 "${TIMER}" | tee data/dstat/test/cpu.dstat
@@ -56,7 +56,6 @@ generate_dstat() {
     --vm \
     --vm-adv \
     --zones 1 "${TIMER}" | tee data/dstat/test/all.dstat
-
 }
 
 plot_dstat() {

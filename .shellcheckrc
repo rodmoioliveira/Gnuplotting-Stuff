@@ -37,3 +37,11 @@ disable=SC2129
 # Use "${array[@]}" (with quotes) to prevent whitespace problems.
 # https://github.com/koalaman/shellcheck/wiki/SC2048
 disable=SC2048
+
+# Useless cat. Consider 'cmd < file...
+# https://www.shellcheck.net/wiki/SC2002
+disable=SC2002
+
+# Useless echo? Instead of 'cmd $(e...
+# https://www.shellcheck.net/wiki/SC2116
+disable=SC2116
