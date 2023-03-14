@@ -13,6 +13,7 @@ clean_tempdir() {
 trap clean_tempdir EXIT
 
 DSTAT_FILE="data/dstat/data.dstat"
+# DSTAT_FILE="dstat2.log"
 
 mktempdir() {
   if ! TMP_DIR=$(mktemp -d -t gnuplot-dstat-XXXXXXXXXX); then
@@ -31,8 +32,28 @@ dstat_to_csv() {
   local -a headers_stats
   local -a headers_parsed
   local -a headers_parsed_new_line
-  while IFS= read -r q; do headers+=("${q}"); done < <(cat "${DSTAT_FILE}" | sd -- '- ' '-|' | sd -- '-{2,}' '' | sd -s -- '-|' '|' | sd -s -- '|-' '|' | head -n1 | sd '\|' '\n')
-  while IFS= read -r q; do headers_stats+=("${q}"); done < <(cat "${DSTAT_FILE}" | sd -- '- ' '-|' | sd -- '-{2,}' '' | sd -s -- '-|' '|' | sd -s -- '|-' '|' | head -n2 | tail -n1 | sd '\|' '\n' | sd '^ {1,1000}' '' | sd ' {2,1000}' ' ' | sd ' {0,1000}\n' '\n')
+  while IFS= read -r q; do headers+=("${q}"); done < <(
+    cat "${DSTAT_FILE}" |
+      sd -- '- ' '-|' |
+      sd -- '-{2,}' '' |
+      sd -s -- '-|' '|' |
+      sd -s -- '|-' '|' |
+      head -n1 |
+      sd '\|' '\n'
+  )
+  while IFS= read -r q; do headers_stats+=("${q}"); done < <(
+    cat "${DSTAT_FILE}" |
+      sd -- '- ' '-|' |
+      sd -- '-{2,}' '' |
+      sd -s -- '-|' '|' |
+      sd -s -- '|-' '|' |
+      head -n2 |
+      tail -n1 |
+      sd '\|' '\n' |
+      sd '^ {1,1000}' '' |
+      sd ' {2,1000}' ' ' |
+      sd ' {0,1000}\n' '\n'
+  )
 
   for hs in "${headers_stats[@]}"; do
     local -a stats
@@ -43,37 +64,188 @@ dstat_to_csv() {
   done
 
   headers_parsed_new_line=$(echo "${headers_parsed[@]}" | sd ' ' '\n')
+  sd_cmd=""
+  numfmt_cmd=""
+  multiplot_layout_lines=0
 
-  if memory_usage_lines=$(echo "${headers_parsed_new_line}" | rg memory-usage --line-number); then
-    numfmt_memory_usage=$(echo "${memory_usage_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "total-cpu-usage/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_total_cpu_usage=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "total-cpu-usage/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if disk_total_lines=$(echo "${headers_parsed_new_line}" | rg -F "dsk/total" --line-number); then
-    numfmt_disk_total=$(echo "${disk_total_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "procs/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_procs=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "procs/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if net_total_lines=$(echo "${headers_parsed_new_line}" | rg -F "net/total" --line-number); then
-    numfmt_net_total=$(echo "${net_total_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "memory-usage/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_memory_usage=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "memory-usage/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if swap_lines=$(echo "${headers_parsed_new_line}" | rg -F "swap/" --line-number); then
-    numfmt_swap=$(echo "${swap_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "dsk/total" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_disk_total=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "dsk/total/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if inodes_lines=$(echo "${headers_parsed_new_line}" | rg -F "filesystem/inodes" --line-number); then
-    numfmt_inodes=$(echo "${inodes_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "net/total" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_net_total=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "net/total/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if vm_lines=$(echo "${headers_parsed_new_line}" | rg -F "virtual-memory/" --line-number); then
-    numfmt_vm=$(echo "${vm_lines}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "swap/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_swap=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "swap/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if io_total=$(echo "${headers_parsed_new_line}" | rg -F "io/total/" --line-number); then
-    numfmt_io=$(echo "${io_total}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "filesystem/inodes" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_filesystem_inodes=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "filesystem/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  if sys=$(echo "${headers_parsed_new_line}" | rg '(system/int|system/csw)' --line-number); then
-    numfmt_sys=$(echo "${sys}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "virtual-memory/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_virtual_memory=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "virtual-memory/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "io/total/" --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_io_total=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "io/total/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
+  fi
+
+  if searched_lines=$(echo "${headers_parsed_new_line}" | rg '(system/int|system/csw)' --line-number); then
+    line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
+    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    plot_system_int_csw=$(
+      echo "${line_numbers}" |
+        sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
+        sd '"' "'" |
+        rg linestyle --line-number |
+        sd '(\d{1,10}):(.+)(\d{1,10})(,)' '$2$1$4' |
+        sd '\n' ' ' |
+        sd ', $' '' |
+        sd '(.+)' 'plot $1' |
+        sd "plot ''" "plot \"${CSV_NUMFMT}\""
+    )
+    sd_cmd+=' | sd "system/" ""'
+    multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
@@ -89,19 +261,78 @@ dstat_to_csv() {
     sort -k1 >>"${CSV_PARSED}"
 
   cat "${CSV_PARSED}" | sd '(^\d{2})(-)(\d{2})_(\d{2}:\d{2}:\d{2})(.+)' '$1/$3-$4${5}' | sd '(\d)k' '${1}K' | sd '(\d)B' '${1}' >|"${CSV_SORTED}"
-  eval "cat ${CSV_SORTED} ${numfmt_memory_usage} ${numfmt_disk_total} ${numfmt_net_total} ${numfmt_swap} ${numfmt_inodes} ${numfmt_vm} ${numfmt_io} ${numfmt_sys}" | tee "${CSV_NUMFMT}"
+  eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" | tee "${CSV_NUMFMT}"
+}
 
-  # echo "${memory_usage_lines}"
-  # echo "${disk_total_lines}"
-  # echo "${net_total_lines}"
-  # echo "${swap_lines}"
-  # echo "${inodes_lines}"
-  # echo "${vm_lines}"
+plot_draw() {
+  OUTPUT_FILE="data/plot/multiplot.png"
+  height=$(echo "${multiplot_layout_lines} * 330" | bc)
+
+  gnuplot <<EOF
+set terminal pngcairo enhanced size 1400,${height} font "Merriweather,16"
+set output "${OUTPUT_FILE}"
+
+set lmargin at screen 0.08
+# set rmargin at screen 0.98
+
+set key right top inside autotitle columnhead font ",10" vertical
+set multiplot layout ${multiplot_layout_lines}, 1 title "dstat" font "Merriweather-Bold,24"
+set datafile separator ','
+
+set xdata time
+set timefmt "%d/%m-%H:%M:%S"
+set format x "%H:%M:%S"
+
+set tics out font ",12"
+set grid back xtics ytics
+
+set style line 1 linecolor rgb '#de2d26' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
+set style line 2 linecolor rgb '#1f78b4' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
+set style line 3 linecolor rgb '#31a354' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
+set style line 4 linecolor rgb '#c51b8a' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
+set style line 5 linecolor rgb '#756bb1' linetype 1 linewidth 1.5 pointtype 1 pointsize 1
+
+set border back
+
+set title "CPU (% Utilization)" font "Merriweather-Bold,18"
+$(echo "${plot_total_cpu_usage}")
+
+set title "Memory (Bytes)" font "Merriweather-Bold,18"
+$(echo "${plot_memory_usage}")
+
+set title "Virtual Memory (Bytes)" font "Merriweather-Bold,18"
+$(echo "${plot_virtual_memory}")
+
+set title "Network (Bytes)" font "Merriweather-Bold,18"
+$(echo "${plot_net_total}")
+
+set title "IO Requests" font "Merriweather-Bold,18"
+$(echo "${plot_io_total}")
+
+set title "Disk" font "Merriweather-Bold,18"
+$(echo "${plot_disk_total}")
+
+set title "Processes" font "Merriweather-Bold,18"
+$(echo "${plot_procs}")
+
+set title "Int csw" font "Merriweather-Bold,18"
+$(echo "${plot_system_int_csw}")
+
+set title "Swap" font "Merriweather-Bold,18"
+$(echo "${plot_swap}")
+
+set title "Filesystem" font "Merriweather-Bold,18"
+$(echo "${plot_filesystem_inodes}")
+exit
+
+exit
+EOF
 }
 
 main() {
   mktempdir
   dstat_to_csv
+  plot_draw
 }
 
 main
