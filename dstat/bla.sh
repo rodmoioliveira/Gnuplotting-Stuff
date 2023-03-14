@@ -75,7 +75,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "total-cpu-usage/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_total_cpu_usage=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -94,7 +101,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "procs/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_procs=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -113,7 +127,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "memory-usage/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_memory_usage=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -132,7 +153,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "dsk/total" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_disk_total=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -151,7 +179,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "net/total" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_net_total=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -170,7 +205,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "swap/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_swap=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -189,7 +231,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "filesystem/inodes" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_filesystem_inodes=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -208,7 +257,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "virtual-memory/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_virtual_memory=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -227,7 +283,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "io/total/" --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_io_total=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -246,7 +309,14 @@ dstat_to_csv() {
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg '(system/int|system/csw)' --line-number); then
     line_numbers=$(echo "${searched_lines}" | awk -F':' '{print $1}')
-    numfmt_cmd+=$(echo "${line_numbers}" | awk -F':' '{print $1}' | awk 'NR==1; END{print}' | sd -- '\n' '-' | sd -- '-$' '' | sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","')
+    numfmt_cmd+=$(
+      echo "${line_numbers}" |
+        awk -F':' '{print $1}' |
+        awk 'NR==1; END{print}' |
+        sd -- '\n' '-' |
+        sd -- '-$' '' |
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+    )
     plot_system_int_csw=$(
       echo "${line_numbers}" |
         sd '(.+)' '"" using 1:$1 with lines linestyle 1,' |
@@ -263,6 +333,7 @@ dstat_to_csv() {
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
+  # Parsing phase
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
   awk 'NR > 2 { print }' "${DSTAT_FILE}" |
     sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
@@ -273,13 +344,15 @@ dstat_to_csv() {
     sd ',$' '' |
     sort -u |
     tac |
-    sort -k1 >>"${CSV_PARSED}"
+    # Sorting phase
+    sort -t ',' -k"${time_column}" >>"${CSV_PARSED}"
 
+  # numfmt clean up phase
   cat "${CSV_PARSED}" |
-    sd '(^\d{2})(-)(\d{2})_(\d{2}:\d{2}:\d{2})(.+)' '$1/$3-$4${5}' |
     sd '(\d)k' '${1}K' |
     sd '(\d)B' '${1}' >"${CSV_SORTED}"
 
+  # Final phase
   eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" | tee "${CSV_NUMFMT}"
 }
 
