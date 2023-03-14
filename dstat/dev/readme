@@ -1,0 +1,45 @@
+#!/bin/bash
+
+declare TRACE
+[[ "${TRACE}" == 1 ]] && set -o xtrace
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o noclobber
+
+readme() {
+  cat <<EOF >|./dstat/README.md
+# pdstat
+
+pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+
+## Dependencies
+
+  - [bc](https://linux.die.net/man/1/bc)
+  - [gawk](https://www.gnu.org/software/gawk/)
+  - [getopt](https://man7.org/linux/man-pages/man3/getopt.3.html)
+  - [gnuplot](http://www.gnuplot.info/)
+  - [head](https://man7.org/linux/man-pages/man1/head.1.html)
+  - [numfmt](https://man7.org/linux/man-pages/man1/numfmt.1.html)
+  - [rg](https://github.com/BurntSushi/ripgrep)
+  - [sd](https://github.com/chmln/sd)
+  - [tail](https://man7.org/linux/man-pages/man1/tail.1.html)
+
+## Usage
+
+\`\`\`txt
+$(./dstat/pdstat 2>&1 --help)
+\`\`\`
+
+## Result
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/all.png">
+</p>
+
+EOF
+
+  sd '(make\[1\]:.+\n)' '' README.md
+}
+
+trap readme EXIT

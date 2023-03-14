@@ -8,7 +8,7 @@ set -o pipefail
 set -o noclobber
 
 symlink() {
-  local -a scripts=("wrk2/pwrk2")
+  local -a scripts=("wrk2/pwrk2" "dstat/pdstat")
   # while IFS= read -r line; do scripts+=("${line}"); done < <(rg '^#!/bin/bash$' -l | rg sh -v | rg dev -v)
   for script in "${scripts[@]}"; do
     local file

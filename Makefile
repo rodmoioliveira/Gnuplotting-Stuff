@@ -10,17 +10,13 @@ dependencies: ## Install dependencies
 	@./dev/dependencies
 
 code-fmt: ## Format bash files
-	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -w
-	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
-	@fd tests -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
+	@./dev/code-fmt
 
 code-fmt-check: ## Check format of bash files
-	@fd . -t f -e sh --absolute-path | xargs shfmt -i 2 -d
-	@fd pwrk2 -t f --absolute-path | rg png -v | xargs shfmt -i 2 -d
-	@fd tests -t f --absolute-path | rg png -v | xargs shfmt -i 2 -w
+	@./dev/code-fmt-check
 
 code-lint: ## Run lint for bash files
-	@fd . -t f -e sh --absolute-path | xargs shellcheck -o all
+	@./dev/code-lint
 
 symlink: ## Add symlink to scripts in path
 	@./dev/symlink
@@ -31,6 +27,7 @@ unsymlink: ## Remove symlink to scripts from path
 readme: ## Write README.md
 	@./dev/readme
 	@./wrk2/dev/readme
+	@./dstat/dev/readme
 
 tests: ## Run tests
 	@./dev/tests

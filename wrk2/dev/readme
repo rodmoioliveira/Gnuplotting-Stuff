@@ -27,7 +27,7 @@ Gnuplot script written by [Gil Tene](https://github.com/giltene).
 ## Usage
 
 \`\`\`txt
-$(2>&1 ./wrk2/pwrk2 --help)
+$(./wrk2/pwrk2 2>&1 --help)
 \`\`\`
 
 ## Result

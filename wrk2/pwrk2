@@ -63,7 +63,7 @@ wrk2_to_csv() {
     filename=$(echo "${file}" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')
     csv="${TMP_DIR_CSV}/${filename}.csv"
     sd_cmd="sd '${KEY_FROM}' '${KEY_TO}'"
-    data_name=$(echo "${filename}" | eval "$sd_cmd")
+    data_name=$(echo "${filename}" | eval "${sd_cmd}")
 
     if [[ "${HAS_KEYS}" == true ]]; then
       # We remove any illegal filename characters that could be provided by the
@@ -452,7 +452,7 @@ arg_output() {
     OUTPUT_FILE="pwrk2.png"
   else
     dir="$(dirname "${OUTPUT}")"
-    if [[ "${dir}" != "." && ! -d "$dir" ]]; then
+    if [[ "${dir}" != "." && ! -d "${dir}" ]]; then
       if ! mkdir -p "${dir}"; then
         printf 1>&2 "Couldn't create directory %s for output file ...\n" "${dir}"
         exit 1
@@ -472,7 +472,7 @@ arg_output() {
 arg_sla_new() {
   if [[ -n "${SLA_NEW_FILE}" ]]; then
     dir="$(dirname "${SLA_NEW_FILE}")"
-    if [[ "${dir}" != "." && ! -d "$dir" ]]; then
+    if [[ "${dir}" != "." && ! -d "${dir}" ]]; then
       if ! mkdir -p "${dir}"; then
         printf 1>&2 "Couldn't create directory %s for sla file ...\n" "${dir}"
         exit 1

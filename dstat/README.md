@@ -1,117 +1,98 @@
-# dstat
+# pdstat
 
-1. First, create the directories for `dstat`, `csv` data and `plot` files:
+pdstat is a Gnuplot script for plotting graphs from dstat metric data.
 
-```sh
-mkdir -p data/{dstat,csv,plot}
+## Dependencies
+
+  - [bc](https://linux.die.net/man/1/bc)
+  - [gawk](https://www.gnu.org/software/gawk/)
+  - [getopt](https://man7.org/linux/man-pages/man3/getopt.3.html)
+  - [gnuplot](http://www.gnuplot.info/)
+  - [head](https://man7.org/linux/man-pages/man1/head.1.html)
+  - [numfmt](https://man7.org/linux/man-pages/man1/numfmt.1.html)
+  - [rg](https://github.com/BurntSushi/ripgrep)
+  - [sd](https://github.com/chmln/sd)
+  - [tail](https://man7.org/linux/man-pages/man1/tail.1.html)
+
+## Usage
+
+```txt
+pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+
+Usage:
+  pdstat [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          A FILE with dstat metric data
+
+Options:
+      --color-bg <COLOR>
+          Set background color [default: #ffffff]
+
+      --color-fg <COLOR>
+          Set foreground color [default: #000000]
+
+  -f, --font <FONT>
+          Multiplot font [default: Merriweather]
+
+  -s, --font-scale <FONT-SCALE>
+          Multiplot font scale [default: 1]
+
+  -g, --height <HEIGHT>
+          Multiplot height for each graph [default: 350]
+
+  -l, --line-width <LINE-WIDTH>
+          Multiplot metric line width [default: 1]
+
+  -o, --output <OUTPUT>
+          Output multiplot file [default: <FILE>.png]
+
+  -p, --preview <BOOL>
+          Whether or not should open the multiplot after generation [default: true] [possible values: true, false]
+
+  -t, --title <TITLE>
+          Multiplot title [default: dstat]
+
+  -v, --verbose <BOOL>
+          Whether or not to be verbose [default: false] [possible values: true, false]
+
+  -w, --width <WIDTH>
+          Multiplot width [default: 1400]
+
+  -h, --help
+          Print help information (use `--help` for more detail)
+
+Examples:
+
+  Get some data
+    dstat --time --cpu --disk --socket 1 10 | tee file.dstat
+
+  Plot from data
+    pdstat file.dstat
+
+  Change plot styles
+    pdstat \
+      --color-bg "#000000" \
+      --color-fg "#ffffff" \
+      --font 'Roboto' \
+      --font-scale 0.9 \
+      --line-width 3 \
+      --width 1300 \
+      --height 300 \
+      file.dstat
+
+Author:
+  Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
+
+Bug Report:
+  If you wish to file a bug report, please go to
+  https://github.com/rodmoioliveira/Gnuplotting-Stuff/issues
 ```
 
-2. Then, collect some metrics with [dstat](https://command-not-found.com/dstat):
-
-```sh
-dstat -tcdglmnprsy --fs --vm | tee data/dstat/data.dstat
-```
-
-3. Now you must convert the `dstat` files to `csv`:
-
-```sh
-cat data/dstat/data.dstat | rg -v -- '--'  | sd '(^\d{2}-\d{2}) ((\d{2}:){2}\d{2})' '${1}_${2}' | sd -s '|' ' ' | sd ' {1,1000}' ' ' | sd '^ ' '' | sd ' ' ',' | sd ',$' '' | sort -u | tac | sd 'time,usr,sys,idl,wai,stl,read,writ,in,out,1m,5m,15m,used,free,buff,cach,recv,send,run,blk,new,read,writ,used,free,int,csw,files,inodes,majpf,minpf,alloc,free' 'time,cpu-usr,cpu-sys,cpu-idl,cpu-wai,cpu-stl,dsk-read,dsk-writ,pag-in,pag-out,lavg-1m,lavg-5m,lavg-15m,mem-used,mem-free,mem-buff,mem-cach,net-recv,net-send,proc-run,proc-blk,proc-new,io-read,io-writ,swap-used,swap-free,sys-int,sys-csw,fs-files,fs-inodes,vm-majpf,vm-minpf,vm-alloc,vm-free' | mlr --csv sort -f time | sd '(^\d{2})(-)(\d{2})_(\d{2}:\d{2}:\d{2})(.+)' '$1/$3-$4${5}' | sd '(\d)k' '${1}K' | sd '(\d)B' '${1}' | numfmt --header --field 7-8 --from=si --delimiter=',' | numfmt --header --field 14-19 --from=si --delimiter=',' | numfmt --header --field 23-24 --from=si --delimiter=',' | numfmt --header --field 27-28 --from=si --delimiter=',' | numfmt --header --field 30-34 --from=si --delimiter=',' > data/csv/data.csv
-```
-
-## CPU
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_cpu.sh
-```
-
-Result:
+## Result
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/cpu.png">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/all.png">
 </p>
 
-## Network
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_net.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/net.png">
-</p>
-
-## Memory
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_mem.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/memory.png">
-</p>
-
-## Virtual Memory
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_vmem.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/vmemory.png">
-</p>
-
-## Disk
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_disk.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/disk.png">
-</p>
-
-## IO Requests
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_io_requests.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/io_requests.png">
-</p>
-
-## Proc
-
-Plot the data with:
-
-```sh
-./gnuplot_dstat_proc.sh
-```
-
-Result:
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/dstat/data/plot/proc.png">
-</p>
