@@ -55,7 +55,31 @@ generate_dstat() {
     --unix \
     --vm \
     --vm-adv \
-    --zones 1 "${TIMER}" | tee data/dstat/test/all.dstat
+    --zones 1 "${TIMER}" | tee data/dstat/test/all.dstat &
+  dstat \
+    --cpu \
+    --disk \
+    --page \
+    --int \
+    --load \
+    --mem \
+    --net \
+    --proc \
+    --io \
+    --swap \
+    --sys \
+    --aio \
+    --fs \
+    --ipc \
+    --lock \
+    --raw \
+    --socket \
+    --tcp \
+    --udp \
+    --unix \
+    --vm \
+    --vm-adv \
+    --zones 1 "${TIMER}" | tee data/dstat/test/all_with_default_time.dstat
   sleep 10
 }
 
@@ -83,7 +107,8 @@ plot_dstat() {
   ./pdstat data/dstat/test/vm.dstat &
   ./pdstat data/dstat/test/vm-adv.dstat &
   ./pdstat data/dstat/test/zones.dstat &
-  ./pdstat data/dstat/test/all.dstat
+  ./pdstat data/dstat/test/all.dstat &
+  ./pdstat data/dstat/test/all_with_default_time.dstat
   sleep 10
 }
 

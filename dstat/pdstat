@@ -13,8 +13,11 @@ clean_tempdir() {
 trap clean_tempdir EXIT
 
 # TODO: create cli flags!
-DSTAT_FILE="$1"
+DSTAT_INPUT="$1"
 OUTPUT_FILE="$1.png"
+PLOT_XDATA='set xdata time'
+PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
+PLOT_FORMAT_X='set format x "%H:%M:%S"'
 
 error_no_time() {
   printf 1>&2 "\nTODO: no time!\n"
@@ -26,9 +29,12 @@ mktempdir() {
     printf 1>&2 "Couldn't create %s\n" "${TMP_DIR}"
     exit 1
   fi
+  DSTAT_FILE="${TMP_DIR}/input.dstat"
+  DSTAT_WITH_DEFAULT_TIME="${TMP_DIR}/default_time.dstat"
+  DSTAT_TIME_DATAPOINTS="${TMP_DIR}/time_datapoints.dstat"
 
   CSV_PARSED="${TMP_DIR}/parsed.csv"
-  CSV_SORTED="${TMP_DIR}/sorted.csv"
+  CSV_NUMFMT_CLEAN="${TMP_DIR}/numfmt_clean.csv"
   CSV_NUMFMT="${TMP_DIR}/numfmt.csv"
 }
 
@@ -38,6 +44,26 @@ dstat_to_csv() {
   local -a headers_stats
   local -a headers_parsed
   local -a headers_parsed_new_line
+
+  cat "${DSTAT_INPUT}" > "${DSTAT_FILE}"
+  if ! searched_lines=$(cat "${DSTAT_FILE}" | rg -F "time" --line-number); then
+    PLOT_XDATA=''
+    PLOT_TIMEFMT=''
+    PLOT_FORMAT_X='set format x "%g(t)"'
+
+    time_data_length=$(cat "${DSTAT_FILE}" | wc -l)
+    time_data_length=$((time_data_length - 2))
+
+    echo "----system----" >"${DSTAT_TIME_DATAPOINTS}"
+    echo "     time     " >>"${DSTAT_TIME_DATAPOINTS}"
+    for i in $(seq 1 "${time_data_length}"); do
+      echo "${i}" >>"${DSTAT_TIME_DATAPOINTS}"
+    done
+
+    paste -d '|' "${DSTAT_TIME_DATAPOINTS}" "${DSTAT_FILE}" >"${DSTAT_WITH_DEFAULT_TIME}"
+    mv "${DSTAT_WITH_DEFAULT_TIME}" "${DSTAT_FILE}"
+  fi
+
   while IFS= read -r q; do headers+=("${q}"); done < <(
     cat "${DSTAT_FILE}" |
       sd -- 'async' '--async--' |
@@ -77,11 +103,19 @@ dstat_to_csv() {
   numfmt_cmd=""
   multiplot_layout_lines=0
 
+  # Parsing phase
+  echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
+  awk 'NR > 2 { print }' "${DSTAT_FILE}" |
+    sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
+    sd -s '|' ' ' |
+    sd ' {1,1000}' ' ' |
+    sd '^ ' '' |
+    sd ' ' ',' |
+    sd ',$' '' >>"${CSV_PARSED}"
+
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "system/time" --line-number); then
     time_column=$(echo "${searched_lines}" | awk -F':' '{print $1}')
     sd_cmd+=' | sd "system/time" "time"'
-  else
-    error_no_time
   fi
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "total-cpu-usage/" --line-number); then
@@ -682,27 +716,13 @@ dstat_to_csv() {
     multiplot_layout_lines=$((multiplot_layout_lines + 1))
   fi
 
-  # Parsing phase
-  echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
-  awk 'NR > 2 { print }' "${DSTAT_FILE}" |
-    sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
-    sd -s '|' ' ' |
-    sd ' {1,1000}' ' ' |
-    sd '^ ' '' |
-    sd ' ' ',' |
-    sd ',$' '' |
-    sort -u |
-    tac |
-    # Sorting phase
-    sort -t ',' -k"${time_column}" >>"${CSV_PARSED}"
-
   # numfmt clean up phase
   cat "${CSV_PARSED}" |
     sd '(\d)k' '${1}K' |
-    sd '(\d)B' '${1}' >"${CSV_SORTED}"
+    sd '(\d)B' '${1}' >"${CSV_NUMFMT_CLEAN}"
 
   # Final phase
-  eval "cat ${CSV_SORTED} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT}"
+  eval "cat ${CSV_NUMFMT_CLEAN} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT}"
 
   # TODO add --debug flag
   # echo "headers =========================="
@@ -718,8 +738,8 @@ dstat_to_csv() {
   # cat "${DSTAT_FILE}" | head -n2
   # echo "CSV_PARSED =========================="
   # cat "${CSV_PARSED}" | head -n1 | sd ',' '\n'
-  # echo "CSV_SORTED =========================="
-  # cat "${CSV_SORTED}" | head -n1 | sd ',' '\n'
+  # echo "CSV_NUMFMT_CLEAN =========================="
+  # cat "${CSV_NUMFMT_CLEAN}" | head -n1 | sd ',' '\n'
   # echo "CSV_NUMFMT =========================="
   # cat "${CSV_NUMFMT}" | head -n1 | sd ',' '\n'
 }
@@ -738,9 +758,9 @@ set key right top inside autotitle columnhead font ",10" vertical
 set multiplot layout ${multiplot_layout_lines}, 1 title "dstat" font "Merriweather-Bold,24"
 set datafile separator ','
 
-set xdata time
-set timefmt "%d/%m-%H:%M:%S"
-set format x "%H:%M:%S"
+$(echo "${PLOT_XDATA}")
+$(echo "${PLOT_TIMEFMT}")
+$(echo "${PLOT_FORMAT_X}")
 
 set tics out font ",12"
 set grid back xtics ytics
