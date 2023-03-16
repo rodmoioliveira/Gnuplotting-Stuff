@@ -45,3 +45,8 @@ disable=SC2002
 # Useless echo? Instead of 'cmd $(e...
 # https://www.shellcheck.net/wiki/SC2116
 disable=SC2116
+
+# Bash implicitly disabled set -e for this function invocation because it's inside
+# a command substitution. Add set -e; before it or enable inherit_errexit.
+# https://www.shellcheck.net/wiki/SC2311
+disable=SC2311
