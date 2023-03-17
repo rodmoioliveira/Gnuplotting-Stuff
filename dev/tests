@@ -7,7 +7,6 @@ set -o nounset
 set -o pipefail
 set -o noclobber
 
-# TODO: add tests for dstat CI
 test_pwrk2() {
   source ~/.bash_profile
   pwrk2 --help
@@ -86,6 +85,16 @@ test_pdstat() {
       -t Short \
       -v true \
       -w 1500
+
+  fd . -t f -e dstat |
+    shuf -n1 |
+    xargs pdstat \
+      --x-range 1:10
+
+  fd . -t f -e dstat |
+    shuf -n1 |
+    xargs pdstat \
+      -x 90:100
 }
 
 main() {
