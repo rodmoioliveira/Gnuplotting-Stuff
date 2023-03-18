@@ -8,11 +8,9 @@ pdstat is a Gnuplot script for plotting graphs from dstat metric data.
   - [gawk](https://www.gnu.org/software/gawk/)
   - [getopt](https://man7.org/linux/man-pages/man3/getopt.3.html)
   - [gnuplot](http://www.gnuplot.info/)
-  - [head](https://man7.org/linux/man-pages/man1/head.1.html)
   - [numfmt](https://man7.org/linux/man-pages/man1/numfmt.1.html)
   - [rg](https://github.com/BurntSushi/ripgrep)
   - [sd](https://github.com/chmln/sd)
-  - [tail](https://man7.org/linux/man-pages/man1/tail.1.html)
 
 ## TODO!
 
