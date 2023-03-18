@@ -62,6 +62,9 @@ Options:
   -t, --title <TITLE>
           Multiplot title [default: dstat]
 
+      --x-step <STEP>
+          Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
+
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
 

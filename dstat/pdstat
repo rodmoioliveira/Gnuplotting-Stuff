@@ -27,11 +27,13 @@ PREVIEW_PLOT=true
 TITLE="dstat"
 VERBOSE=false
 WIDTH=1400
+RANGE_X='0:100'
+HAS_STEP_X=false
+STEP_X=1
 
 PLOT_XDATA='set xdata time'
 PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
 PLOT_FORMAT_X='set format x "%H:%M:%S"'
-RANGE_X='0:100'
 
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
@@ -49,6 +51,7 @@ mktempdir() {
   DSTAT_TIME_DATAPOINTS="${TMP_DIR}/time_datapoints.dstat"
 
   CSV_PARSED="${TMP_DIR}/parsed.csv"
+  CSV_STEP="${TMP_DIR}/step.csv"
   CSV_NUMFMT_CLEAN="${TMP_DIR}/numfmt_clean.csv"
   CSV_NUMFMT="${TMP_DIR}/numfmt.csv"
 }
@@ -74,6 +77,7 @@ Options:
   -o, --output <OUTPUT>           Output multiplot file [default: <FILE>.png]
   -p, --preview <BOOL>            Whether or not should open the multiplot after generation [default: true] [possible values: true, false]
   -t, --title <TITLE>             Multiplot title [default: dstat]
+      --x-step <STEP>             Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
   -x, --x-range <START>:<END>     Select/filter the range of data to plot in the x-axis [default: '0:100']
   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
   -w, --width <WIDTH>             Multiplot width [default: 1400]
@@ -125,6 +129,9 @@ Options:
   -t, --title <TITLE>
           Multiplot title [default: dstat]
 
+      --x-step <STEP>
+          Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
+
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
 
@@ -175,7 +182,14 @@ error_no_input() {
 }
 
 error_x_range() {
-  error="${1}"
+  local error="${1}"
+  printf 1>&2 "%s ...\n" "${error}"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
+}
+
+error_x_step() {
+  local error="${1}"
   printf 1>&2 "%s ...\n" "${error}"
   printf 1>&2 "\nFor more information try '--help'\n"
   exit 1
@@ -221,7 +235,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n dstat -o ho:v:f:g:l:p:s:t:w:x: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range: -- "$@"); then
+  if ! args=$(getopt -a -n dstat -o ho:v:f:g:l:p:s:t:w:x: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range:,x-step: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -268,6 +282,10 @@ args_parse() {
     -x | --x-range)
       shift
       RANGE_X="$1"
+      ;;
+    --x-step)
+      shift
+      STEP_X="$1"
       ;;
     -p | --preview)
       shift
@@ -324,6 +342,16 @@ arg_x_range() {
   RANGE_X_END="${range_x_end}"
 }
 
+arg_x_step() {
+  if [[ "${STEP_X}" == 0 ]]; then
+    error_x_step "the value '<STEP>' for the flag --x-step can't be zero"
+  fi
+
+  if [[ "${STEP_X}" != 1 ]]; then
+    HAS_STEP_X=true
+  fi
+}
+
 arg_preview() {
   if ! [[ "${PREVIEW_PLOT}" == true || "${PREVIEW_PLOT}" == false ]]; then
     error_preview
@@ -363,6 +391,7 @@ args_validate() {
   arg_verbose
   arg_output
   arg_x_range
+  arg_x_step
 }
 
 calc_font_size() {
@@ -440,13 +469,46 @@ dstat_to_csv() {
 
   # Parsing phase
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
-  awk 'NR > 2 { print }' "${DSTAT_FILE}" |
-    sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
-    sd -s '|' ' ' |
-    sd ' {1,1000}' ' ' |
-    sd '^ ' '' |
-    sd ' ' ',' |
-    sd ',$' '' >>"${CSV_PARSED}"
+  parsed_values=$(
+    awk 'NR > 2 { print }' "${DSTAT_FILE}" |
+      sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
+      sd -s '|' ' ' |
+      sd ' {1,1000}' ' ' |
+      sd '^ ' '' |
+      sd ' ' ',' |
+      sd ',$' ''
+  )
+
+  if [[ "${HAS_STEP_X}" == true ]]; then
+    step_values=$(echo "${parsed_values}" | rg . --line-number)
+    echo "${step_values}" >"${CSV_STEP}"
+
+    step_regex_values=$(
+      echo "${step_values}" |
+        rg . --line-number --color never |
+        awk -F ':' '{print $1}' |
+        sd '(.+)' 'scale=0; $1 % '"${STEP_X}"'' |
+        bc -l |
+        rg --line-number "^0$" |
+        awk -F ':' '{print $1}'
+    )
+
+    step_regex_values_count=$(echo "${step_regex_values}" | wc -l)
+    if [[ $(echo "${step_regex_values_count} <= 1" | bc) == 1 ]]; then
+      error_x_step "the value '<STEP>' for the flag --x-step is too high. No data points will be plotted"
+    fi
+
+    step_regex=$(
+      echo "${step_regex_values}" |
+        sd '\n' '$1|' |
+        sd '\|$' '' |
+        sd '(.+)' '^($1):'
+    )
+
+    eval "cat ${CSV_STEP} | rg '${step_regex}' | sd '^\d{1,}:' ''" >>"${CSV_PARSED}"
+  else
+    echo "${parsed_values}" >>"${CSV_PARSED}"
+  fi
 
   if searched_lines=$(echo "${headers_parsed_new_line}" | rg -F "system/time" --line-number); then
     time_column=$(echo "${searched_lines}" | awk -F':' '{print $1}')
@@ -1089,16 +1151,24 @@ calc_x_range() {
 }
 
 map_range() {
+  # https://stackoverflow.com/questions/12931115/algorithm-to-map-an-interval-to-a-smaller-interval
+  # To map
+  # [A, B] --> [a, b]
+
+  # use this formula
+  # (val - A)*(b-a)/(B-A) + a
+  # (${input} - ${input_start})*(${output_end} - ${output_start})/(${input_end} - ${input_start}) + ${output_start}
+
   input="${1}"
   output_start=2
   output_end=$(wc -l "${CSV_NUMFMT}" | awk '{print $1}' | bc)
   input_start=0
   input_end=100
 
-  slope="(${output_end} - ${output_start}) / (${input_end} - ${input_start})"
-  output="${output_start} + ${slope} * (${input} - ${input_start})"
+  output="(${input} - ${input_start}) * (${output_end} - ${output_start}) / (${input_end} - ${input_start}) + ${output_start}"
   line=$(echo "${output}" | bc)
-  rg . "${CSV_NUMFMT}" --line-number | rg "^${line}:" | sd "^${line}:(.+)" '$1' | awk -F',' '{print $1}'
+  line_match=$(eval "rg . ${CSV_NUMFMT} --line-number | rg ^${line}: | sd '^\d{1,}:' ''")
+  eval "echo ${line_match} | awk -F',' '{print \$${time_column}}'"
 }
 
 plot_draw() {
@@ -1122,7 +1192,7 @@ set rmargin at screen 0.90
 set output "${OUTPUT_FILE}"
 
 set key right top outside autotitle columnhead font ",$(calc_font_size 11)" vertical
-set multiplot layout ${multiplot_layout_lines}, 1 title "${TITLE}" font "${FONT}-Bold,$(calc_font_size 24)"
+set multiplot layout ${multiplot_layout_lines}, 1 title "${TITLE}" textcolor rgb "${COLOR_FG}" font "${FONT}-Bold,$(calc_font_size 24)"
 set datafile separator ','
 
 $(echo "${PLOT_XDATA}")
