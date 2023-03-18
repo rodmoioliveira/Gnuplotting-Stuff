@@ -101,23 +101,23 @@ plot_dstat() {
       -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/range')"
   done
 
-  # --x-step
+  # --x-mod
   for file in $(fd . -t f -e dstat); do
-    echo "--x-step ${file}"
+    echo "--x-mod ${file}"
     pdstat "${file}" \
       -pfalse \
-      --x-step 10 \
-      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step')"
+      --x-mod 10 \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/mod')"
   done
 
-  # --x-step and --x-range
+  # --x-mod and --x-range
   for file in $(fd . -t f -e dstat); do
-    echo "--x-step and --x-range ${file}"
+    echo "--x-mod and --x-range ${file}"
     pdstat "${file}" \
       -pfalse \
-      --x-step 10 \
+      --x-mod 10 \
       -x40:60 \
-      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step_and_range')"
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/mod_and_range')"
   done
 
   # styles

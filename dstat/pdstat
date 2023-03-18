@@ -28,8 +28,8 @@ TITLE="dstat"
 VERBOSE=false
 WIDTH=1400
 RANGE_X='0:100'
-HAS_STEP_X=false
-STEP_X=1
+HAS_MOD_X=false
+MOD_X=1
 
 PLOT_XDATA='set xdata time'
 PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
@@ -51,7 +51,7 @@ mktempdir() {
   DSTAT_TIME_DATAPOINTS="${TMP_DIR}/time_datapoints.dstat"
 
   CSV_PARSED="${TMP_DIR}/parsed.csv"
-  CSV_STEP="${TMP_DIR}/step.csv"
+  CSV_MOD="${TMP_DIR}/mod.csv"
   CSV_NUMFMT_CLEAN="${TMP_DIR}/numfmt_clean.csv"
   CSV_NUMFMT="${TMP_DIR}/numfmt.csv"
 }
@@ -77,7 +77,7 @@ Options:
   -o, --output <OUTPUT>           Output multiplot file [default: <FILE>.png]
   -p, --preview <BOOL>            Whether or not should open the multiplot after generation [default: true] [possible values: true, false]
   -t, --title <TITLE>             Multiplot title [default: dstat]
-      --x-step <STEP>             Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
+      --x-mod <MOD>               Select/filter data to plot by `datapoint line number mod <MOD> == 0` in the x-axis [default: 1]
   -x, --x-range <START>:<END>     Select/filter the range of data to plot in the x-axis [default: '0:100']
   -v, --verbose <BOOL>            Whether or not to be verbose [default: false] [possible values: true, false]
   -w, --width <WIDTH>             Multiplot width [default: 1400]
@@ -129,8 +129,8 @@ Options:
   -t, --title <TITLE>
           Multiplot title [default: dstat]
 
-      --x-step <STEP>
-          Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
+      --x-mod <MOD>
+          Select/filter data to plot by `datapoint line number mod <MOD> == 0` in the x-axis [default: 1]
 
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
@@ -147,7 +147,7 @@ Options:
 Examples:
 
   Get some data
-    dstat --time --cpu --disk --socket 1 10 | tee file.dstat
+    dstat --time --cpu --disk --socket 1 60 | tee file.dstat
 
   Plot from data
     pdstat file.dstat
@@ -162,6 +162,12 @@ Examples:
       --width 1300 \
       --height 300 \
       file.dstat
+
+  Slice your data
+    pdstat --x-range 50:100 file.dstat
+
+  Decrease the granularity of data points
+    pdstat --x-mod 2 file.dstat
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
@@ -188,7 +194,7 @@ error_x_range() {
   exit 1
 }
 
-error_x_step() {
+error_x_mod() {
   local error="${1}"
   printf 1>&2 "%s ...\n" "${error}"
   printf 1>&2 "\nFor more information try '--help'\n"
@@ -235,7 +241,7 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n dstat -o ho:v:f:g:l:p:s:t:w:x: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range:,x-step: -- "$@"); then
+  if ! args=$(getopt -a -n dstat -o ho:v:f:g:l:p:s:t:w:x: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range:,x-mod: -- "$@"); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
@@ -283,9 +289,9 @@ args_parse() {
       shift
       RANGE_X="$1"
       ;;
-    --x-step)
+    --x-mod)
       shift
-      STEP_X="$1"
+      MOD_X="$1"
       ;;
     -p | --preview)
       shift
@@ -342,13 +348,13 @@ arg_x_range() {
   RANGE_X_END="${range_x_end}"
 }
 
-arg_x_step() {
-  if [[ "${STEP_X}" == 0 ]]; then
-    error_x_step "the value '<STEP>' for the flag --x-step can't be zero"
+arg_x_mod() {
+  if [[ "${MOD_X}" == 0 ]]; then
+    error_x_mod "the value '<MOD>' for the flag --x-mod can't be zero"
   fi
 
-  if [[ "${STEP_X}" != 1 ]]; then
-    HAS_STEP_X=true
+  if [[ "${MOD_X}" != 1 ]]; then
+    HAS_MOD_X=true
   fi
 }
 
@@ -397,7 +403,7 @@ args_validate() {
   arg_verbose
   arg_output
   arg_x_range
-  arg_x_step
+  arg_x_mod
 }
 
 calc_font_size() {
@@ -484,33 +490,33 @@ dstat_to_csv() {
       sd ',$' ''
   )
 
-  if [[ "${HAS_STEP_X}" == true ]]; then
-    step_values=$(echo "${parsed_values}" | rg . --line-number)
-    echo "${step_values}" >"${CSV_STEP}"
+  if [[ "${HAS_MOD_X}" == true ]]; then
+    mod_values=$(echo "${parsed_values}" | rg . --line-number)
+    echo "${mod_values}" >"${CSV_MOD}"
 
-    step_regex_values=$(
-      echo "${step_values}" |
+    mod_regex_values=$(
+      echo "${mod_values}" |
         rg . --line-number --color never |
         awk -F ':' '{print $1}' |
-        sd '(.+)' 'scale=0; $1 % '"${STEP_X}"'' |
+        sd '(.+)' 'scale=0; $1 % '"${MOD_X}"'' |
         bc -l |
         rg --line-number "^0$" |
         awk -F ':' '{print $1}'
     )
 
-    step_regex_values_count=$(echo "${step_regex_values}" | wc -l)
-    if [[ $(echo "${step_regex_values_count} <= 1" | bc) == 1 ]]; then
-      error_x_step "the value '<STEP>' for the flag --x-step is too high. No data points will be plotted"
+    mod_regex_values_count=$(echo "${mod_regex_values}" | wc -l)
+    if [[ $(echo "${mod_regex_values_count} <= 1" | bc) == 1 ]]; then
+      error_x_mod "the value '<MOD>' for the flag --x-mod is too high. No data points will be plotted"
     fi
 
-    step_regex=$(
-      echo "${step_regex_values}" |
+    mod_regex=$(
+      echo "${mod_regex_values}" |
         sd '\n' '$1|' |
         sd '\|$' '' |
         sd '(.+)' '^($1):'
     )
 
-    eval "cat ${CSV_STEP} | rg '${step_regex}' | sd '^\d{1,}:' ''" >>"${CSV_PARSED}"
+    eval "cat ${CSV_MOD} | rg '${mod_regex}' | sd '^\d{1,}:' ''" >>"${CSV_PARSED}"
   else
     echo "${parsed_values}" >>"${CSV_PARSED}"
   fi
