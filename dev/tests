@@ -89,12 +89,20 @@ test_pdstat() {
   fd . -t f -e dstat |
     shuf -n1 |
     xargs pdstat \
+      -p false \
       --x-range 1:10
 
   fd . -t f -e dstat |
     shuf -n1 |
     xargs pdstat \
+      -p false \
       -x 90:100
+
+  fd . -t f -e dstat |
+    shuf -n1 |
+    xargs pdstat \
+      -p false \
+      --x-step 10
 }
 
 main() {

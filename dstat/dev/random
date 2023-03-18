@@ -106,7 +106,7 @@ plot_dstat() {
     echo "--x-step ${file}"
     pdstat "${file}" \
       -pfalse \
-      --x-step 100 \
+      --x-step 10 \
       -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step')"
   done
 
@@ -115,7 +115,7 @@ plot_dstat() {
     echo "--x-step and --x-range ${file}"
     pdstat "${file}" \
       -pfalse \
-      --x-step 100 \
+      --x-step 10 \
       -x40:60 \
       -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step_and_range')"
   done

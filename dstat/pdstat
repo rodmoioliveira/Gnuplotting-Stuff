@@ -1159,10 +1159,8 @@ map_range() {
   # https://stackoverflow.com/questions/12931115/algorithm-to-map-an-interval-to-a-smaller-interval
   # To map
   # [A, B] --> [a, b]
-
   # use this formula
   # (val - A)*(b-a)/(B-A) + a
-  # (${input} - ${input_start})*(${output_end} - ${output_start})/(${input_end} - ${input_start}) + ${output_start}
 
   input="${1}"
   output_start=2
@@ -1179,7 +1177,7 @@ map_range() {
 plot_draw() {
   height=$(echo "${multiplot_layout_lines} * ${HEIGHT}" | bc)
 
-  gnuplot <<EOF 2>"${GNUPLOT_ERRORS_SINK}"
+  gnuplot <<EOF 2>|"${GNUPLOT_ERRORS_SINK}"
 set terminal pngcairo enhanced background rgb "${COLOR_BG}" size "${WIDTH}","${height}" font "${FONT},$(calc_font_size 16)"
 
 set border linecolor rgb "${COLOR_FG}"
