@@ -84,32 +84,56 @@ generate_dstat() {
 }
 
 plot_dstat() {
-  ./pdstat -p "false" -o data/plot/cpu.png data/dstat/cpu.dstat &
-  ./pdstat -p "false" -o data/plot/disk.png data/dstat/disk.dstat &
-  ./pdstat -p "false" -o data/plot/page.png data/dstat/page.dstat &
-  ./pdstat -p "false" -o data/plot/int.png data/dstat/int.dstat &
-  ./pdstat -p "false" -o data/plot/load.png data/dstat/load.dstat &
-  ./pdstat -p "false" -o data/plot/mem.png data/dstat/mem.dstat &
-  ./pdstat -p "false" -o data/plot/net.png data/dstat/net.dstat &
-  ./pdstat -p "false" -o data/plot/proc.png data/dstat/proc.dstat &
-  ./pdstat -p "false" -o data/plot/io.png data/dstat/io.dstat &
-  ./pdstat -p "false" -o data/plot/swap.png data/dstat/swap.dstat &
-  ./pdstat -p "false" -o data/plot/sys.png data/dstat/sys.dstat &
-  ./pdstat -p "false" -o data/plot/aio.png data/dstat/aio.dstat &
-  ./pdstat -p "false" -o data/plot/fs.png data/dstat/fs.dstat &
-  ./pdstat -p "false" -o data/plot/ipc.png data/dstat/ipc.dstat &
-  ./pdstat -p "false" -o data/plot/lock.png data/dstat/lock.dstat &
-  ./pdstat -p "false" -o data/plot/raw.png data/dstat/raw.dstat &
-  ./pdstat -p "false" -o data/plot/socket.png data/dstat/socket.dstat &
-  ./pdstat -p "false" -o data/plot/tpc.png data/dstat/tpc.dstat &
-  ./pdstat -p "false" -o data/plot/udp.png data/dstat/udp.dstat &
-  ./pdstat -p "false" -o data/plot/unix.png data/dstat/unix.dstat &
-  ./pdstat -p "false" -o data/plot/vm.png data/dstat/vm.dstat &
-  ./pdstat -p "false" -o data/plot/vm-adv.png data/dstat/vm-adv.dstat &
-  ./pdstat -p "false" -o data/plot/zones.png data/dstat/zones.dstat &
-  ./pdstat -p "false" -o data/plot/all.png data/dstat/all.dstat &
-  ./pdstat -p "false" -o data/plot/all_with_default_time.png data/dstat/all_with_default_time.dstat
-  sleep 10
+  # no flags
+  for file in $(fd . -t f -e dstat); do
+    echo "no flags ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/default')"
+  done
+
+  # --x-range
+  for file in $(fd . -t f -e dstat); do
+    echo "--x-range ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      -x40:60 \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/range')"
+  done
+
+  # --x-step
+  for file in $(fd . -t f -e dstat); do
+    echo "--x-step ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --x-step 100 \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step')"
+  done
+
+  # --x-step and --x-range
+  for file in $(fd . -t f -e dstat); do
+    echo "--x-step and --x-range ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --x-step 100 \
+      -x40:60 \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/step_and_range')"
+  done
+
+  # styles
+  for file in $(fd . -t f -e dstat); do
+    echo "styles ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --color-bg "black" \
+      --color-fg "white" \
+      --font Arial \
+      --font-scale 1.1 \
+      --height 330 \
+      --width 1500 \
+      --line-width 2 \
+      -o "$(echo "${file}" | sd -s '.dstat' '.png' | sd -s 'dstat/data/dstat' 'dstat/data/plot/styles')"
+  done
 }
 
 generate_random_dstat() {
@@ -150,7 +174,7 @@ generate_random_dstat() {
   for c in "${generate[@]}"; do eval "${c}"; done
   sleep $(echo "${TIMER} + 10" | bc)
   for f in "${filenames[@]}"; do
-    eval "./pdstat -p false -o ${pngs[${array_counter}]} ${f} &"
+    eval "pdstat -p false -o ${pngs[${array_counter}]} ${f} &"
     array_counter=$((array_counter + 1))
   done
 }
