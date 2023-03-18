@@ -211,7 +211,7 @@ deps_validate() {
   summary=()
   is_valid=true
 
-  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "numfmt" "tail" "head")
+  deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "numfmt")
   for dep in "${deps[@]}"; do
     if ! command -v "${dep}" &>/dev/null; then
       summary+=("[deps] ${dep} ... Missing!")
@@ -442,7 +442,7 @@ dstat_to_csv() {
       sd -s -- '-|' '|' |
       sd -s -- '|-' '|' |
       sd '(\w)-$' '$1' |
-      head -n1 |
+      awk 'NR==1{print}' |
       sd '\|' '\n'
   )
   while IFS= read -r q; do headers_stats+=("${q}"); done < <(
@@ -451,8 +451,7 @@ dstat_to_csv() {
       sd -- '-{2,}' '' |
       sd -s -- '-|' '|' |
       sd -s -- '|-' '|' |
-      head -n2 |
-      tail -n1 |
+      awk 'NR==2{print}' |
       sd '\|' '\n' |
       sd '^ {1,1000}' '' |
       sd ' {2,1000}' ' ' |
