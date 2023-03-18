@@ -60,8 +60,8 @@ Options:
   -t, --title <TITLE>
           Multiplot title [default: dstat]
 
-      --x-step <STEP>
-          Select/filter data to plot by `datapoint line number mod <STEP> == 0` in the x-axis [default: 1]
+      --x-mod <MOD>
+          Select/filter data to plot by `datapoint line number mod <MOD> == 0` in the x-axis [default: 1]
 
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
@@ -78,7 +78,7 @@ Options:
 Examples:
 
   Get some data
-    dstat --time --cpu --disk --socket 1 10 | tee file.dstat
+    dstat --time --cpu --disk --socket 1 60 | tee file.dstat
 
   Plot from data
     pdstat file.dstat
@@ -93,6 +93,12 @@ Examples:
       --width 1300 \
       --height 300 \
       file.dstat
+
+  Slice your data
+    pdstat --x-range 50:100 file.dstat
+
+  Decrease the granularity of data points
+    pdstat --x-mod 2 file.dstat
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)

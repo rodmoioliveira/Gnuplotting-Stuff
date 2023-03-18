@@ -102,7 +102,7 @@ test_pdstat() {
     shuf -n1 |
     xargs pdstat \
       -p false \
-      --x-step 10
+      --x-mod 10
 }
 
 main() {
