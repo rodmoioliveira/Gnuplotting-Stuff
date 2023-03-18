@@ -362,6 +362,12 @@ arg_verbose() {
   if ! [[ "${VERBOSE}" == true || "${VERBOSE}" == false ]]; then
     error_verbose
   fi
+
+  if [[ "${VERBOSE}" == true ]]; then
+    GNUPLOT_ERRORS_FILTER="."
+  else
+    GNUPLOT_ERRORS_FILTER="$^"
+  fi
 }
 
 arg_output() {
@@ -1174,7 +1180,7 @@ map_range() {
 plot_draw() {
   height=$(echo "${multiplot_layout_lines} * ${HEIGHT}" | bc)
 
-  gnuplot <<EOF
+  gnuplot <<EOF 2>&1 | rg "${GNUPLOT_ERRORS_FILTER}" | sd '(.+)' 'Gnuplot: $1'
 set terminal pngcairo enhanced background rgb "${COLOR_BG}" size "${WIDTH}","${height}" font "${FONT},$(calc_font_size 16)"
 
 set border linecolor rgb "${COLOR_FG}"
