@@ -306,7 +306,13 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n pwrk2 -o ho:v:f:g:l:k:p:s:t:w:u: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,kmargin:,color-fg:,color-bg:,sla-new:,sla-plot:,unit: -- "$@"); then
+  if ! args=$(
+    getopt -a \
+      -n pwrk2 \
+      -o ho:v:f:g:l:k:p:s:t:w:u: \
+      --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,key-from:,key-to:,kmargin:,color-fg:,color-bg:,sla-new:,sla-plot:,unit: \
+      -- "$@"
+  ); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
