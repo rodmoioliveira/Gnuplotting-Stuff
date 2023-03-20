@@ -12,6 +12,7 @@ install_linux() {
 }
 
 install_mac() {
+  brew install bash
   brew install shellcheck
   brew install shfmt
   brew install sd
