@@ -41,6 +41,9 @@ jobs:
     - name: Symlink scripts ${{ matrix.os }}
       run: make symlink
 
+    - name: Bash version ${{ matrix.os }}
+      run: bash --version;
+
     - name: Run tests ${{ matrix.os }}
       run: make tests
 
