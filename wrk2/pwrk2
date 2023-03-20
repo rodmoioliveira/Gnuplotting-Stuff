@@ -65,6 +65,15 @@ wrk2_to_csv() {
     sd_cmd="sd '${KEY_FROM}' '${KEY_TO}'"
     data_name=$(echo "${filename}" | eval "${sd_cmd}")
 
+    if ! match=$(
+      rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
+        rg request -v |
+        rg threads -v |
+        awk '{print $4","$1","$2}'
+    ); then
+      error_wrong_input "No data points found in file ${file}"
+    fi
+
     if [[ "${HAS_KEYS}" == true ]]; then
       # We remove any illegal filename characters that could be provided by the
       # user when using the flags --key-from and --key-from. The CSV filenames
@@ -72,16 +81,10 @@ wrk2_to_csv() {
       safe_filename=$(echo -e "${data_name}" | sd '[#&{}<?/$!:@+|=;, ]' "_" | sd '`' '_' | sd "'" '_' | sd '"' '_')
 
       printf "1/1-percentile,%s,percentile\n" "${data_name}" >"${TMP_DIR_CSV}/${safe_filename}.csv"
-      rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
-        rg request -v |
-        rg threads -v |
-        awk '{print $4","$1","$2}' >>"${TMP_DIR_CSV}/${safe_filename}.csv"
+      echo "${match}" >>"${TMP_DIR_CSV}/${safe_filename}.csv"
     else
       printf "1/1-percentile,%s,percentile\n" "${filename}" >"${csv}"
-      rg '^ {2,10}\d' --no-filename --no-line-number "${file}" |
-        rg request -v |
-        rg threads -v |
-        awk '{print $4","$1","$2}' >>"${csv}"
+      echo "${match}" >>"${csv}"
     fi
 
     if [[ "${VERBOSE}" == true ]]; then
@@ -111,7 +114,7 @@ Options:
       --key-to <REPLACE>          Regex to replace the name of <FILE>, used to set key labels
   -k, --kmargin <KEY-MARGIN>      Bottom plot margin for key labels [default: 6]
   -l, --line-width <LINE-WIDTH>   Plot latency line width [default: 1.5]
-  -o, --output <OUTPUT>           Output plot file [default: pwrk2.png]
+  -o, --output <OUTPUT>           Output plot file [default: plot.png]
   -p, --preview <BOOL>            Whether or not should open the plot after generation [default: true] [possible values: true, false]
       --sla-new <SLA-NEW>         Create a new SLA file in CSV format (only edit the 1st column value) [unit measurement: ms]
       --sla-plot <SLA-PLOT>       Plot the SLA file with the latency data
@@ -168,7 +171,7 @@ Options:
           Plot latency line width [default: 1.5]
 
   -o, --output <OUTPUT>
-          Output plot file [default: pwrk2.png]
+          Output plot file [default: plot.png]
 
   -p, --preview <BOOL>
           Whether or not should open the plot after generation [default: true] [possible values: true, false]
@@ -206,7 +209,7 @@ Examples:
     pwrk2 *.hgrm
 
   Rename plot labels
-    fd . -e hgrm | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
+    fd . -e hgrm | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/plot.png
 
   Change plot styles
     fd . -e hgrm | pwrk2 \
@@ -236,6 +239,13 @@ EOF
   )
 
   printf 1>&2 "%s\n" "${help_text}"
+}
+
+error_wrong_input() {
+  local error="${1}"
+  printf 1>&2 "%s ...\n" "${error}"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
 }
 
 error_no_input() {
@@ -445,11 +455,17 @@ arg_verbose() {
   if ! [[ "${VERBOSE}" == true || "${VERBOSE}" == false ]]; then
     error_verbose
   fi
+
+  if [[ "${VERBOSE}" == true ]]; then
+    GNUPLOT_ERRORS_SINK=/dev/stderr
+  else
+    GNUPLOT_ERRORS_SINK=/dev/null
+  fi
 }
 
 arg_output() {
   if [[ -z "${OUTPUT}" ]]; then
-    OUTPUT_FILE="pwrk2.png"
+    OUTPUT_FILE="plot.png"
   else
     dir="$(dirname "${OUTPUT}")"
     if [[ "${dir}" != "." && ! -d "${dir}" ]]; then
@@ -544,7 +560,7 @@ plot_draw() {
     counter_sla=$((counter_sla + 1))
   done
 
-  gnuplot <<EOF
+  gnuplot <<EOF 2>|"${GNUPLOT_ERRORS_SINK}"
 set terminal pngcairo enhanced background rgb "${COLOR_BG}" size "${WIDTH}","${HEIGHT}" font "${FONT},$(calc_font_size 16)"
 
 set border linecolor rgb "${COLOR_FG}"

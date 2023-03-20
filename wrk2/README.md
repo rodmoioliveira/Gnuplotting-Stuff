@@ -54,7 +54,7 @@ Options:
           Plot latency line width [default: 1.5]
 
   -o, --output <OUTPUT>
-          Output plot file [default: pwrk2.png]
+          Output plot file [default: plot.png]
 
   -p, --preview <BOOL>
           Whether or not should open the plot after generation [default: true] [possible values: true, false]
@@ -92,7 +92,7 @@ Examples:
     pwrk2 *.hgrm
 
   Rename plot labels
-    fd . -e hgrm | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/pwrk2.png
+    fd . -e hgrm | pwrk2 --key-from '(\d{1,10})' --key-to '${1} R/s' --output data/plot/plot.png
 
   Change plot styles
     fd . -e hgrm | pwrk2 \
