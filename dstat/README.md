@@ -14,7 +14,7 @@ pdstat is a Gnuplot script for plotting graphs from dstat metric data.
 
 ## TODO!
 
-- [ ] Add units for each metric
+- [x] Add units for each metric
 - [ ] Add flags filters to exclude and include the metrics to plot
 - [x] Add flags to slice data intervals
 - [x] Add flags to step data intervals

@@ -11,6 +11,9 @@
 ##
 #########################################################################
 
+# --output dstat fails to start...trying to load python3's csv?
+# https://serverfault.com/questions/996996/dstat-fails-to-start-trying-to-load-python3s-csv
+
 declare TRACE
 [[ "${TRACE}" == 1 ]] && set -o xtrace
 set -o errexit
@@ -83,6 +86,9 @@ declare -A VALID_DSTAT_HEADERS=(
   ["memory-usage_free"]=true
   ["memory-usage_buff"]=true
   ["memory-usage_cach"]=true
+  # TODO: support dool? If so, dool default unit mesurament is in --bits, and
+  # dstat is in --bytes...
+  # ["memory-usage_avai"]=true
   ["net_total_recv"]=true
   ["net_total_send"]=true
   ["procs_run"]=true
@@ -552,7 +558,10 @@ dstat_to_csv() {
   local -a headers_parsed
   local -a headers_parsed_new_line
 
-  cat "${FILE}" >"${DSTAT_FILE}"
+  cat "${FILE}" |
+    # TODO: support dool?
+    sd '┄' '-' | sd '┬' '|' | sd '│' '|' \
+    >"${DSTAT_FILE}"
   if ! searched_lines=$(cat "${DSTAT_FILE}" | rg -F "time" --line-number); then
     PLOT_XDATA=''
     PLOT_TIMEFMT=''
@@ -1270,6 +1279,8 @@ dstat_to_csv() {
 
   # numfmt clean up phase
   cat "${CSV_PARSED}" |
+    # TODO: support dool?
+    sd '(\d)b' '${1}' |
     sd '(\d)k' '${1}K' |
     sd '(\d)B' '${1}' >"${CSV_NUMFMT_CLEAN}"
 
@@ -1376,62 +1387,62 @@ $(echo "${plot_memory_usage}")
 set title "Virtual Memory (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_virtual_memory}")
 
-set title "Virtual Memory Advanced (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Virtual Memory Advanced" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_virtual_memory_advanced}")
 
-set title "Zone Memory" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Zone Memory (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_zone_memory}")
 
 set title "Network (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_net_total}")
 
-set title "TCP" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_tcp}")
-
-set title "UDP" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_udp}")
-
-set title "Sockets" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Sockets (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_sockets}")
 
-set title "Unix Sockets" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Unix Sockets (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_unix_sockets}")
 
-set title "IO Requests" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "TCP Sockets (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_tcp}")
+
+set title "UDP Sockets (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_udp}")
+
+set title "Raw Sockets (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_raw}")
+
+set title "IO (Requests)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_io_total}")
 
-set title "Async IO" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Async IO (Requests)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_async_io}")
 
-set title "Disk" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Disk (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_disk_total}")
 
-set title "Filesystem" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Filesystem (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_filesystem}")
 
-set title "File Locks" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "File Locks (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_file_locks}")
 
-set title "Processes" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Processes (Instances)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_procs}")
 
-set title "Int Csw" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Interrupts/Context Switches (Requests)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_system_int_csw}")
 
-set title "Swap" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_swap}")
-
-set title "Paging" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_paging}")
-
-set title "Interrupts" font "${FONT}-Bold,$(calc_font_size 18)"
+set title "Interrupts (Requests)" font "${FONT}-Bold,$(calc_font_size 18)"
 $(echo "${plot_interrupts}")
 
-set title "IPC" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_sysv_ipc}")
+set title "Swap (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_swap}")
 
-set title "Raw" font "${FONT}-Bold,$(calc_font_size 18)"
-$(echo "${plot_raw}")
+set title "Paging (Bytes)" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_paging}")
+
+set title "Interprocess Communication" font "${FONT}-Bold,$(calc_font_size 18)"
+$(echo "${plot_sysv_ipc}")
 exit
 EOF
 }
