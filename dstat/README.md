@@ -61,7 +61,7 @@ Options:
           Multiplot title [default: dstat]
 
       --x-mod <MOD>
-          Select/filter data to plot by `datapoint line number mod <MOD> == 0` in the x-axis [default: 1]
+          Select/filter data to plot by `data point line number mod <MOD> == 0` in the x-axis [default: 1]
 
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
