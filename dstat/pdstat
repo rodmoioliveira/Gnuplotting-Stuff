@@ -335,6 +335,13 @@ deps_validate() {
   summary=()
   is_valid=true
 
+  if ((BASH_VERSINFO[0] < 4)); then
+    is_valid=false
+    summary+=("[deps] Bash ${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]} ... Should update to Bash 4.0 or newer")
+  else
+    summary+=("[deps] Bash ${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]} ... OK")
+  fi
+
   deps=("bc" "gawk" "getopt" "gnuplot" "rg" "sd" "numfmt")
   for dep in "${deps[@]}"; do
     if ! command -v "${dep}" &>/dev/null; then
