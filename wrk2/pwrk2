@@ -604,9 +604,9 @@ EOF
 
 plot_preview() {
   if [[ "${PREVIEW_PLOT}" == true ]]; then
-    unameOut="$(uname -s)"
+    uname_kernel="$(uname -s)"
 
-    case "${unameOut}" in
+    case "${uname_kernel}" in
     Linux*) xdg-open "${OUTPUT_FILE}" ;;
     Darwin*) open "${OUTPUT_FILE}" ;;
     CYGWIN* | MINGW* | *) ;;
