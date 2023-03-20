@@ -50,7 +50,7 @@ test_pwrk2() {
   pwrk2 --sla-new client2.sla
   fd . -e hgrm |
     pwrk2 --sla-plot client1.sla --sla-plot client2.sla --preview false -us
-  rm client1.sla client2.sla long.png pwrk2.png short.png
+  rm client1.sla client2.sla long.png plot.png short.png
 }
 
 test_pdstat() {
