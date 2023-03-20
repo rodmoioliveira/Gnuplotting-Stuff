@@ -36,104 +36,104 @@ PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
 PLOT_FORMAT_X='set format x "%H:%M:%S"'
 
 declare -A VALID_DSTAT_FLAGS=(
-  ["--time"]="system/time"
-  ["--cpu"]="total-cpu-usage/usr total-cpu-usage/sys total-cpu-usage/idl total-cpu-usage/wai total-cpu-usage/stl"
-  ["--disk"]="dsk/total/read dsk/total/writ"
-  ["--page"]="paging/in paging/out"
-  ["--int"]="interrupts/138 interrupts/139 interrupts/140"
-  ["--load"]="load-avg/1m load-avg/5m load-avg/15m memory-usage/used"
-  ["--mem"]="memory-usage/free memory-usage/buff memory-usage/cach"
-  ["--net"]="net/total/recv net/total/send"
-  ["--proc"]="procs/run procs/blk procs/new"
-  ["--io"]="io/total/read io/total/writ"
-  ["--swap"]="swap/used swap/free"
-  ["--sys"]="system/int system/csw"
-  ["--aio"]="async/aio"
-  ["--fs"]="filesystem/files filesystem/inodes"
-  ["--ipc"]="sysv-ipc/msg sysv-ipc/sem sysv-ipc/shm"
-  ["--lock"]="file-locks/pos file-locks/lck file-locks/rea file-locks/wri"
-  ["--raw"]="raw/raw"
-  ["--socket"]="sockets/tot sockets/tcp sockets/udp sockets/raw sockets/frg"
-  ["--tcp"]="tcp-sockets/lis tcp-sockets/act tcp-sockets/syn tcp-sockets/tim tcp-sockets/clo"
-  ["--udp"]="udp/lis udp/act"
-  ["--unix"]="unix-sockets/dgm unix-sockets/str unix-sockets/lis unix-sockets/act"
-  ["--vm"]="virtual-memory/majpf virtual-memory/minpf virtual-memory/alloc virtual-memory/free"
-  ["--vm-adv"]="advanced-virtual-memory/steal advanced-virtual-memory/scanK advanced-virtual-memory/scanD advanced-virtual-memory/pgoru advanced-virtual-memory/astll"
-  ["--zones"]="zones-memory/d32F zones-memory/d32H zones-memory/normF zones-memory/normH"
+  ["time"]="time"
+  ["cpu"]="usr sys idl wai stl"
+  ["disk"]="read writ"
+  ["page"]="in out"
+  ["int"]="138 139 140"
+  ["load"]="1m 5m 15m used"
+  ["mem"]="free buff cach"
+  ["net"]="recv send"
+  ["proc"]="run blk new"
+  ["io"]="read writ"
+  ["swap"]="used free"
+  ["sys"]="int csw"
+  ["aio"]="aio"
+  ["fs"]="files inodes"
+  ["ipc"]="msg sem shm"
+  ["lock"]="pos lck rea wri"
+  ["raw"]="raw"
+  ["socket"]="tot tcp udp raw frg"
+  ["tcp"]="lis act syn tim clo"
+  ["udp"]="lis act"
+  ["unix"]="dgm str lis act"
+  ["vm"]="majpf minpf alloc free"
+  ["vm-adv"]="steal scanK scanD pgoru astll"
+  ["zones"]="d32F d32H normF normH"
 )
 
 declare -A VALID_DSTAT_HEADERS=(
-  ["system/time"]=true
-  ["total-cpu-usage/usr"]=true
-  ["total-cpu-usage/sys"]=true
-  ["total-cpu-usage/idl"]=true
-  ["total-cpu-usage/wai"]=true
-  ["total-cpu-usage/stl"]=true
-  ["dsk/total/read"]=true
-  ["dsk/total/writ"]=true
-  ["paging/in"]=true
-  ["paging/out"]=true
-  ["interrupts/138"]=true
-  ["interrupts/139"]=true
-  ["interrupts/140"]=true
-  ["load-avg/1m"]=true
-  ["load-avg/5m"]=true
-  ["load-avg/15m"]=true
-  ["memory-usage/used"]=true
-  ["memory-usage/free"]=true
-  ["memory-usage/buff"]=true
-  ["memory-usage/cach"]=true
-  ["net/total/recv"]=true
-  ["net/total/send"]=true
-  ["procs/run"]=true
-  ["procs/blk"]=true
-  ["procs/new"]=true
-  ["io/total/read"]=true
-  ["io/total/writ"]=true
-  ["swap/used"]=true
-  ["swap/free"]=true
-  ["system/int"]=true
-  ["system/csw"]=true
-  ["async/aio"]=true
-  ["filesystem/files"]=true
-  ["filesystem/inodes"]=true
-  ["sysv-ipc/msg"]=true
-  ["sysv-ipc/sem"]=true
-  ["sysv-ipc/shm"]=true
-  ["file-locks/pos"]=true
-  ["file-locks/lck"]=true
-  ["file-locks/rea"]=true
-  ["file-locks/wri"]=true
-  ["raw/raw"]=true
-  ["sockets/tot"]=true
-  ["sockets/tcp"]=true
-  ["sockets/udp"]=true
-  ["sockets/raw"]=true
-  ["sockets/frg"]=true
-  ["tcp-sockets/lis"]=true
-  ["tcp-sockets/act"]=true
-  ["tcp-sockets/syn"]=true
-  ["tcp-sockets/tim"]=true
-  ["tcp-sockets/clo"]=true
-  ["udp/lis"]=true
-  ["udp/act"]=true
-  ["unix-sockets/dgm"]=true
-  ["unix-sockets/str"]=true
-  ["unix-sockets/lis"]=true
-  ["unix-sockets/act"]=true
-  ["virtual-memory/majpf"]=true
-  ["virtual-memory/minpf"]=true
-  ["virtual-memory/alloc"]=true
-  ["virtual-memory/free"]=true
-  ["advanced-virtual-memory/steal"]=true
-  ["advanced-virtual-memory/scanK"]=true
-  ["advanced-virtual-memory/scanD"]=true
-  ["advanced-virtual-memory/pgoru"]=true
-  ["advanced-virtual-memory/astll"]=true
-  ["zones-memory/d32F"]=true
-  ["zones-memory/d32H"]=true
-  ["zones-memory/normF"]=true
-  ["zones-memory/normH"]=true
+  ["system_time"]=true
+  ["total-cpu-usage_usr"]=true
+  ["total-cpu-usage_sys"]=true
+  ["total-cpu-usage_idl"]=true
+  ["total-cpu-usage_wai"]=true
+  ["total-cpu-usage_stl"]=true
+  ["dsk_total_read"]=true
+  ["dsk_total_writ"]=true
+  ["paging_in"]=true
+  ["paging_out"]=true
+  ["interrupts_138"]=true
+  ["interrupts_139"]=true
+  ["interrupts_140"]=true
+  ["load-avg_1m"]=true
+  ["load-avg_5m"]=true
+  ["load-avg_15m"]=true
+  ["memory-usage_used"]=true
+  ["memory-usage_free"]=true
+  ["memory-usage_buff"]=true
+  ["memory-usage_cach"]=true
+  ["net_total_recv"]=true
+  ["net_total_send"]=true
+  ["procs_run"]=true
+  ["procs_blk"]=true
+  ["procs_new"]=true
+  ["io_total_read"]=true
+  ["io_total_writ"]=true
+  ["swap_used"]=true
+  ["swap_free"]=true
+  ["system_int"]=true
+  ["system_csw"]=true
+  ["async_aio"]=true
+  ["filesystem_files"]=true
+  ["filesystem_inodes"]=true
+  ["sysv-ipc_msg"]=true
+  ["sysv-ipc_sem"]=true
+  ["sysv-ipc_shm"]=true
+  ["file-locks_pos"]=true
+  ["file-locks_lck"]=true
+  ["file-locks_rea"]=true
+  ["file-locks_wri"]=true
+  ["raw_raw"]=true
+  ["sockets_tot"]=true
+  ["sockets_tcp"]=true
+  ["sockets_udp"]=true
+  ["sockets_raw"]=true
+  ["sockets_frg"]=true
+  ["tcp-sockets_lis"]=true
+  ["tcp-sockets_act"]=true
+  ["tcp-sockets_syn"]=true
+  ["tcp-sockets_tim"]=true
+  ["tcp-sockets_clo"]=true
+  ["udp_lis"]=true
+  ["udp_act"]=true
+  ["unix-sockets_dgm"]=true
+  ["unix-sockets_str"]=true
+  ["unix-sockets_lis"]=true
+  ["unix-sockets_act"]=true
+  ["virtual-memory_majpf"]=true
+  ["virtual-memory_minpf"]=true
+  ["virtual-memory_alloc"]=true
+  ["virtual-memory_free"]=true
+  ["advanced-virtual-memory_steal"]=true
+  ["advanced-virtual-memory_scanK"]=true
+  ["advanced-virtual-memory_scanD"]=true
+  ["advanced-virtual-memory_pgoru"]=true
+  ["advanced-virtual-memory_astll"]=true
+  ["zones-memory_d32F"]=true
+  ["zones-memory_d32H"]=true
+  ["zones-memory_normF"]=true
+  ["zones-memory_normH"]=true
 )
 
 clean_tempdir() {
@@ -289,9 +289,9 @@ error_wrong_input() {
   printf 1>&2 "    %s\n" "${invalid_headers}"
   printf 1>&2 "\n"
   printf 1>&2 "The valid flags accepted to generate data from the dstat command are:\n\n"
-  printf 1>&2 "%-10s  PDSTAT_HEADER\n" "DSTAT_FLAG"
+  printf 1>&2 "%-10s    PDSTAT_HEADER\n" "DSTAT_FLAG"
   for flag in "${!VALID_DSTAT_FLAGS[@]}"; do
-    printf 1>&2 "%-10s  %s\n" "${flag}" "${VALID_DSTAT_FLAGS[${flag}]}"
+    printf 1>&2 -- "--%-10s  %s\n" "${flag}" "${VALID_DSTAT_FLAGS[${flag}]}"
   done
   printf 1>&2 "\n"
   printf 1>&2 "pdstat doesn't accept data generated with dstat using other flags.\n"
@@ -598,9 +598,10 @@ dstat_to_csv() {
   done
 
   local -a invalid_headers=()
-  for s in ${headers_parsed[*]}; do
-    if [[ "${VALID_DSTAT_HEADERS[${s}]}" != "true" ]]; then
-      invalid_headers+=("${s}")
+  for h in ${headers_parsed[*]}; do
+    ph=$(echo "${h}" | sd -s '/' '_')
+    if [[ "${VALID_DSTAT_HEADERS[${ph}]}" != "true" ]]; then
+      invalid_headers+=("${h}")
     fi
   done
 
