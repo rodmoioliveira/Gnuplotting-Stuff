@@ -74,6 +74,11 @@ wrk2_to_csv() {
       error_wrong_input "No data points found in file ${file}"
     fi
 
+    data_point_columns_count=$(echo "${match}" | awk 'NR==1 {print}' | sd ',' '\n' | rg '^$' -v | wc -l)
+    if [[ $(echo "${data_point_columns_count} != 3" | bc) == 1 ]]; then
+      error_wrong_input "No data points found in file ${file}"
+    fi
+
     if [[ "${HAS_KEYS}" == true ]]; then
       # We remove any illegal filename characters that could be provided by the
       # user when using the flags --key-from and --key-from. The CSV filenames
