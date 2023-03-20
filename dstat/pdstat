@@ -35,6 +35,80 @@ PLOT_XDATA='set xdata time'
 PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
 PLOT_FORMAT_X='set format x "%H:%M:%S"'
 
+declare -A VALID_DSTAT_HEADERS=(
+  ["system/time"]=true
+  ["total-cpu-usage/usr"]=true
+  ["total-cpu-usage/sys"]=true
+  ["total-cpu-usage/idl"]=true
+  ["total-cpu-usage/wai"]=true
+  ["total-cpu-usage/stl"]=true
+  ["dsk/total/read"]=true
+  ["dsk/total/writ"]=true
+  ["paging/in"]=true
+  ["paging/out"]=true
+  ["interrupts/138"]=true
+  ["interrupts/139"]=true
+  ["interrupts/140"]=true
+  ["load-avg/1m"]=true
+  ["load-avg/5m"]=true
+  ["load-avg/15m"]=true
+  ["memory-usage/used"]=true
+  ["memory-usage/free"]=true
+  ["memory-usage/buff"]=true
+  ["memory-usage/cach"]=true
+  ["net/total/recv"]=true
+  ["net/total/send"]=true
+  ["procs/run"]=true
+  ["procs/blk"]=true
+  ["procs/new"]=true
+  ["io/total/read"]=true
+  ["io/total/writ"]=true
+  ["swap/used"]=true
+  ["swap/free"]=true
+  ["system/int"]=true
+  ["system/csw"]=true
+  ["async/aio"]=true
+  ["filesystem/files"]=true
+  ["filesystem/inodes"]=true
+  ["sysv-ipc/msg"]=true
+  ["sysv-ipc/sem"]=true
+  ["sysv-ipc/shm"]=true
+  ["file-locks/pos"]=true
+  ["file-locks/lck"]=true
+  ["file-locks/rea"]=true
+  ["file-locks/wri"]=true
+  ["raw/raw"]=true
+  ["sockets/tot"]=true
+  ["sockets/tcp"]=true
+  ["sockets/udp"]=true
+  ["sockets/raw"]=true
+  ["sockets/frg"]=true
+  ["tcp-sockets/lis"]=true
+  ["tcp-sockets/act"]=true
+  ["tcp-sockets/syn"]=true
+  ["tcp-sockets/tim"]=true
+  ["tcp-sockets/clo"]=true
+  ["udp/lis"]=true
+  ["udp/act"]=true
+  ["unix-sockets/dgm"]=true
+  ["unix-sockets/str"]=true
+  ["unix-sockets/lis"]=true
+  ["unix-sockets/act"]=true
+  ["virtual-memory/majpf"]=true
+  ["virtual-memory/minpf"]=true
+  ["virtual-memory/alloc"]=true
+  ["virtual-memory/free"]=true
+  ["advanced-virtual-memory/steal"]=true
+  ["advanced-virtual-memory/scanK"]=true
+  ["advanced-virtual-memory/scanD"]=true
+  ["advanced-virtual-memory/pgoru"]=true
+  ["advanced-virtual-memory/astll"]=true
+  ["zones-memory/d32F"]=true
+  ["zones-memory/d32H"]=true
+  ["zones-memory/normF"]=true
+  ["zones-memory/normH"]=true
+)
+
 clean_tempdir() {
   rm -rf "${TMP_DIR}"
 }
@@ -130,7 +204,7 @@ Options:
           Multiplot title [default: dstat]
 
       --x-mod <MOD>
-          Select/filter data to plot by `datapoint line number mod <MOD> == 0` in the x-axis [default: 1]
+          Select/filter data to plot by `data point line number mod <MOD> == 0` in the x-axis [default: 1]
 
   -x, --x-range <START>:<END>
           Select/filter the range of data to plot in the x-axis [default: '0:100']
@@ -179,6 +253,15 @@ EOF
   )
 
   printf 1>&2 "%s\n" "${help_text}"
+}
+
+error_wrong_input() {
+  local count="${1}"
+  local invalid_headers="${2}"
+  printf 1>&2 "Input <FILE>:%s has %s invalid headers ...\n" "${FILE}" "${count}"
+  printf 1>&2 "    %s\n" "${invalid_headers}"
+  printf 1>&2 "\nFor more information try '--help'\n"
+  exit 1
 }
 
 error_no_input() {
@@ -472,6 +555,18 @@ dstat_to_csv() {
     stats=()
     array_counter=$((array_counter + 1))
   done
+
+  local -a invalid_headers=()
+  for s in ${headers_parsed[*]}; do
+    if [[ "${VALID_DSTAT_HEADERS[${s}]}" != "true" ]]; then
+      invalid_headers+=("${s}")
+    fi
+  done
+
+  invalid_headers_count=$(wc -w <<<"${invalid_headers[@]}")
+  if [[ $(echo "${invalid_headers_count} > 0" | bc) == 1 ]]; then
+    error_wrong_input "${invalid_headers_count}" "${invalid_headers[*]}"
+  fi
 
   headers_parsed_new_line=$(echo "${headers_parsed[@]}" | sd ' ' '\n')
   sd_cmd=""
