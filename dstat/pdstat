@@ -324,7 +324,13 @@ deps_validate() {
 
 args_parse() {
   local args
-  if ! args=$(getopt -a -n dstat -o ho:v:f:g:l:p:s:t:w:x: --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range:,x-mod: -- "$@"); then
+  if ! args=$(
+    getopt -a \
+      -n dstat \
+      -o ho:v:f:g:l:p:s:t:w:x: \
+      --long help,preview:,verbose:,output:,width:,height:,font:,title:,font-scale:,line-width:,color-fg:,color-bg:,x-range:,x-mod: \
+      -- "$@"
+  ); then
     printf 1>&2 "\nFor more information try '--help'\n"
     exit 1
   fi
