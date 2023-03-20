@@ -35,6 +35,33 @@ PLOT_XDATA='set xdata time'
 PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
 PLOT_FORMAT_X='set format x "%H:%M:%S"'
 
+declare -A VALID_DSTAT_FLAGS=(
+  ["--time"]="system/time"
+  ["--cpu"]="total-cpu-usage/usr total-cpu-usage/sys total-cpu-usage/idl total-cpu-usage/wai total-cpu-usage/stl"
+  ["--disk"]="dsk/total/read dsk/total/writ"
+  ["--page"]="paging/in paging/out"
+  ["--int"]="interrupts/138 interrupts/139 interrupts/140"
+  ["--load"]="load-avg/1m load-avg/5m load-avg/15m memory-usage/used"
+  ["--mem"]="memory-usage/free memory-usage/buff memory-usage/cach"
+  ["--net"]="net/total/recv net/total/send"
+  ["--proc"]="procs/run procs/blk procs/new"
+  ["--io"]="io/total/read io/total/writ"
+  ["--swap"]="swap/used swap/free"
+  ["--sys"]="system/int system/csw"
+  ["--aio"]="async/aio"
+  ["--fs"]="filesystem/files filesystem/inodes"
+  ["--ipc"]="sysv-ipc/msg sysv-ipc/sem sysv-ipc/shm"
+  ["--lock"]="file-locks/pos file-locks/lck file-locks/rea file-locks/wri"
+  ["--raw"]="raw/raw"
+  ["--socket"]="sockets/tot sockets/tcp sockets/udp sockets/raw sockets/frg"
+  ["--tcp"]="tcp-sockets/lis tcp-sockets/act tcp-sockets/syn tcp-sockets/tim tcp-sockets/clo"
+  ["--udp"]="udp/lis udp/act"
+  ["--unix"]="unix-sockets/dgm unix-sockets/str unix-sockets/lis unix-sockets/act"
+  ["--vm"]="virtual-memory/majpf virtual-memory/minpf virtual-memory/alloc virtual-memory/free"
+  ["--vm-adv"]="advanced-virtual-memory/steal advanced-virtual-memory/scanK advanced-virtual-memory/scanD advanced-virtual-memory/pgoru advanced-virtual-memory/astll"
+  ["--zones"]="zones-memory/d32F zones-memory/d32H zones-memory/normF zones-memory/normH"
+)
+
 declare -A VALID_DSTAT_HEADERS=(
   ["system/time"]=true
   ["total-cpu-usage/usr"]=true
@@ -258,8 +285,16 @@ EOF
 error_wrong_input() {
   local count="${1}"
   local invalid_headers="${2}"
-  printf 1>&2 "Input <FILE>:%s has %s invalid headers ...\n" "${FILE}" "${count}"
+  printf 1>&2 "Input <FILE>:%s has %s invalid headers ...\n\n" "${FILE}" "${count}"
   printf 1>&2 "    %s\n" "${invalid_headers}"
+  printf 1>&2 "\n"
+  printf 1>&2 "The valid flags accepted to generate data from the dstat command are:\n\n"
+  printf 1>&2 "%-10s  PDSTAT_HEADER\n" "DSTAT_FLAG"
+  for flag in "${!VALID_DSTAT_FLAGS[@]}"; do
+    printf 1>&2 "%-10s  %s\n" "${flag}" "${VALID_DSTAT_FLAGS[${flag}]}"
+  done
+  printf 1>&2 "\n"
+  printf 1>&2 "pdstat doesn't accept data generated with dstat using other flags.\n"
   printf 1>&2 "\nFor more information try '--help'\n"
   exit 1
 }
