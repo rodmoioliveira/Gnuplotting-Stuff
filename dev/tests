@@ -54,55 +54,29 @@ test_pwrk2() {
 }
 
 test_pdstat() {
+  SHUFFLE=5
+
   source ~/.bash_profile
   pdstat --help
-  fd . -t f -e dstat |
-    shuf -n1 |
-    xargs pdstat \
-      --color-bg "black" \
-      --color-fg "white" \
-      --font Arial \
-      --font-scale 1.1 \
-      --height 330 \
-      --line-width 2 \
-      --output long.png \
-      --preview false \
-      --title Long \
-      --verbose false \
-      --width 1500
+  fd . -t f -e dstat -e dool |
+    shuf -n"${SHUFFLE}" |
+    xargs -n1 bash -c 'pdstat --output $0.png --verbose true --color-bg black --color-fg white --font Arial --font-scale 1.1 --height 330 --line-width 2 --output long.png --preview false --title Long --verbose false --width 1500 $0'
 
-  fd . -t f -e dstat |
-    shuf -n1 |
-    xargs pdstat \
-      --color-bg "black" \
-      --color-fg "white" \
-      -f Arial \
-      -s 1.1 \
-      -g 330 \
-      -l 2 \
-      -o short.png \
-      -p false \
-      -t Short \
-      -v true \
-      -w 1500
+  fd . -t f -e dstat -e dool |
+    shuf -n"${SHUFFLE}" |
+    xargs -n1 bash -c 'pdstat -o $0.png -vtrue --color-bg black --color-fg white -f Arial -s 1.1 -g 330 -l 2 -o short.png -p false -t Short -v true -w 1500 $0'
 
-  fd . -t f -e dstat |
-    shuf -n1 |
-    xargs pdstat \
-      -p false \
-      --x-range 1:10
+  fd . -t f -e dstat -e dool |
+    shuf -n"${SHUFFLE}" |
+    xargs -n1 bash -c 'pdstat -o $0.png -vtrue -p false --x-range 1:10 $0'
 
-  fd . -t f -e dstat |
-    shuf -n1 |
-    xargs pdstat \
-      -p false \
-      -x 90:100
+  fd . -t f -e dstat -e dool |
+    shuf -n"${SHUFFLE}" |
+    xargs -n1 bash -c 'pdstat -o $0.png -vtrue -p false -x 20:90 $0'
 
-  fd . -t f -e dstat |
-    shuf -n1 |
-    xargs pdstat \
-      -p false \
-      --x-mod 10
+  fd . -t f -e dstat -e dool |
+    shuf -n"${SHUFFLE}" |
+    xargs -n1 bash -c 'pdstat -o $0.png -vtrue -p false --x-mod 2 $0'
 }
 
 main() {

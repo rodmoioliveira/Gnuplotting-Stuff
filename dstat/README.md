@@ -111,6 +111,6 @@ Bug Report:
 ## Result
 
 <p align="center">
-  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/dstat/data/plot/default/all.png">
+  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/dstat/data/plot/dstat/default/all.png ">
 </p>
 
