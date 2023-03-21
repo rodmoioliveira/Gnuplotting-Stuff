@@ -1344,6 +1344,10 @@ dstat_to_csv() {
 calc_x_range() {
   PLOT_RANGE_X_START="$(map_range "${RANGE_X_START}")"
   PLOT_RANGE_X_END="$(map_range "${RANGE_X_END}")"
+
+  if [[ "${PLOT_RANGE_X_START}" == "${PLOT_RANGE_X_END}" ]]; then
+    error_x_range "the values '${RANGE_X_START}:${RANGE_X_END}' for the flag --x-range will produce an empty x range"
+  fi
 }
 
 map_range() {
