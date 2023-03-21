@@ -1,0 +1,201 @@
+#!/bin/bash
+
+declare TRACE
+[[ "${TRACE}" == 1 ]] && set -o xtrace
+set -o errexit
+set -o pipefail
+set -o noclobber
+
+TIMER=20
+
+generate_dool() {
+  dool --bytes --time --cpu 1 "${TIMER}" | tee dstat/data/dool/cpu.dool &
+  dool --bytes --time --disk 1 "${TIMER}" | tee dstat/data/dool/disk.dool &
+  dool --bytes --time --page 1 "${TIMER}" | tee dstat/data/dool/page.dool &
+  dool --bytes --time --int 1 "${TIMER}" | tee dstat/data/dool/int.dool &
+  dool --bytes --time --load 1 "${TIMER}" | tee dstat/data/dool/load.dool &
+  dool --bytes --time --mem 1 "${TIMER}" | tee dstat/data/dool/mem.dool &
+  dool --bytes --time --net 1 "${TIMER}" | tee dstat/data/dool/net.dool &
+  dool --bytes --time --proc 1 "${TIMER}" | tee dstat/data/dool/proc.dool &
+  dool --bytes --time --io 1 "${TIMER}" | tee dstat/data/dool/io.dool &
+  dool --bytes --time --swap 1 "${TIMER}" | tee dstat/data/dool/swap.dool &
+  dool --bytes --time --sys 1 "${TIMER}" | tee dstat/data/dool/sys.dool &
+  dool --bytes --time --aio 1 "${TIMER}" | tee dstat/data/dool/aio.dool &
+  dool --bytes --time --fs 1 "${TIMER}" | tee dstat/data/dool/fs.dool &
+  dool --bytes --time --ipc 1 "${TIMER}" | tee dstat/data/dool/ipc.dool &
+  dool --bytes --time --lock 1 "${TIMER}" | tee dstat/data/dool/lock.dool &
+  dool --bytes --time --raw 1 "${TIMER}" | tee dstat/data/dool/raw.dool &
+  dool --bytes --time --socket 1 "${TIMER}" | tee dstat/data/dool/socket.dool &
+  dool --bytes --time --tcp 1 "${TIMER}" | tee dstat/data/dool/tpc.dool &
+  dool --bytes --time --udp 1 "${TIMER}" | tee dstat/data/dool/udp.dool &
+  dool --bytes --time --unix 1 "${TIMER}" | tee dstat/data/dool/unix.dool &
+  dool --bytes --time --vm 1 "${TIMER}" | tee dstat/data/dool/vm.dool &
+  dool --bytes --time --vm-adv 1 "${TIMER}" | tee dstat/data/dool/vm-adv.dool &
+  dool --bytes --time --zones 1 "${TIMER}" | tee dstat/data/dool/zones.dool &
+  dool --bytes --time \
+    --cpu \
+    --disk \
+    --page \
+    --int \
+    --load \
+    --mem \
+    --net \
+    --proc \
+    --io \
+    --swap \
+    --sys \
+    --aio \
+    --fs \
+    --ipc \
+    --lock \
+    --raw \
+    --socket \
+    --tcp \
+    --udp \
+    --unix \
+    --vm \
+    --vm-adv \
+    --zones 1 "${TIMER}" | tee dstat/data/dool/all.dool &
+  dool --bytes \
+    --cpu \
+    --disk \
+    --page \
+    --int \
+    --load \
+    --mem \
+    --net \
+    --proc \
+    --io \
+    --swap \
+    --sys \
+    --aio \
+    --fs \
+    --ipc \
+    --lock \
+    --raw \
+    --socket \
+    --tcp \
+    --udp \
+    --unix \
+    --vm \
+    --vm-adv \
+    --zones 1 "${TIMER}" | tee dstat/data/dool/all_with_default_time.dool
+  sleep 5
+}
+
+plot_dool() {
+  # no flags
+  for file in $(fd . -t f -e dool); do
+    echo "no flags ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      -o "$(echo "${file}" | sd -s '.dool' '.png' | sd -s 'dstat/data/dool' 'dstat/data/plot/dool/default')" &
+  done
+
+  sleep 5
+
+  # --x-range
+  for file in $(fd . -t f -e dool); do
+    echo "--x-range ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      -x40:60 \
+      -o "$(echo "${file}" | sd -s '.dool' '.png' | sd -s 'dstat/data/dool' 'dstat/data/plot/dool/range')" &
+  done
+
+  sleep 5
+
+  # --x-mod
+  for file in $(fd . -t f -e dool); do
+    echo "--x-mod ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --x-mod 2 \
+      -o "$(echo "${file}" | sd -s '.dool' '.png' | sd -s 'dstat/data/dool' 'dstat/data/plot/dool/mod')" &
+  done
+
+  sleep 5
+
+  # --x-mod and --x-range
+  for file in $(fd . -t f -e dool); do
+    echo "--x-mod and --x-range ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --x-mod 2 \
+      -x40:60 \
+      -o "$(echo "${file}" | sd -s '.dool' '.png' | sd -s 'dstat/data/dool' 'dstat/data/plot/dool/mod_and_range')" &
+  done
+
+  sleep 5
+
+  # styles
+  for file in $(fd . -t f -e dool); do
+    echo "styles ${file}"
+    pdstat "${file}" \
+      -pfalse \
+      --color-bg "black" \
+      --color-fg "white" \
+      --font Arial \
+      --font-scale 1.1 \
+      --height 330 \
+      --width 1500 \
+      --line-width 2 \
+      -o "$(echo "${file}" | sd -s '.dool' '.png' | sd -s 'dstat/data/dool' 'dstat/data/plot/dool/styles')" &
+  done
+}
+
+generate_random_dool() {
+  path="dstat/data"
+  local -a generate
+  local -a filenames
+  local -a pngs
+  array_counter=0
+
+  for i in $(seq 1 20); do
+    echo "Random genetarion ${i}"
+    dool_cmd=$(
+      echo -e --cpu --disk --page --int --load --mem --net --proc --io --swap --sys --aio --fs --ipc --lock --raw --socket --tcp --udp --unix --vm --vm-adv --zones --time |
+        sd ' ' '\n' |
+        shuf |
+        head -n $(shuf -i 3-12 -n1) |
+        sd '\n' ' ' |
+        sd ' $' '\n' |
+        sd '(.+)' 'dool --bytes $1 1 num' |
+        sd 'num' "${TIMER}"
+    )
+    dool_filename=$(
+      echo "${dool_cmd}" |
+        sd ' ' '\n' |
+        rg -- '--' |
+        sd '\n' ' ' |
+        sd -- '--' '' |
+        sd ' $' '' |
+        sd ' ' '_'
+    )
+    file="${path}/dool/${dool_filename}.dool"
+    png="${path}/plot/dool/random/${dool_filename}.png"
+    filenames+=("${file}")
+    pngs+=("${png}")
+    generate+=("${dool_cmd} | tee ${file} &")
+  done
+
+  for c in "${generate[@]}"; do eval "${c}"; done
+  sleep $(echo "${TIMER} + 10" | bc)
+  for f in "${filenames[@]}"; do
+    eval "pdstat -p false -o ${pngs[${array_counter}]} ${f} &"
+    array_counter=$((array_counter + 1))
+  done
+}
+
+open_plots() {
+  fd . -e png | rg plot | xargs -n1 xdg-open
+}
+
+main() {
+  generate_dool
+  generate_random_dool
+  plot_dool
+  # open_plots
+}
+
+main

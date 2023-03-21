@@ -88,7 +88,7 @@ declare -A VALID_DSTAT_HEADERS=(
   ["memory-usage_cach"]=true
   # TODO: support dool? If so, dool default unit mesurament is in --bits, and
   # dstat is in --bytes...
-  # ["memory-usage_avai"]=true
+  ["memory-usage_avai"]=true
   ["net_total_recv"]=true
   ["net_total_send"]=true
   ["procs_run"]=true
@@ -580,6 +580,14 @@ dstat_to_csv() {
     mv "${DSTAT_WITH_DEFAULT_TIME}" "${DSTAT_FILE}"
   fi
 
+  # # TODO: csv parsing
+  # bat csv |
+  #   awk 'NR==5 {print}' |
+  #   sd ',{1,1000}' ',' |
+  #   sd ' ' '-' |
+  #   sd ',' '\n' |
+  #   sd '"' '' |
+  #   rg '^$' -v
   while IFS= read -r q; do headers+=("${q}"); done < <(
     cat "${DSTAT_FILE}" |
       sd -- 'async' '--async--' |
@@ -591,6 +599,15 @@ dstat_to_csv() {
       awk 'NR==1{print}' |
       sd '\|' '\n'
   )
+
+  # # TODO: csv parsing
+  # bat csv |
+  #   awk 'NR==6 {print}' |
+  #   sd ',{1,1000}' ',' |
+  #   sd ' ' '-' |
+  #   sd ',' '\n' |
+  #   sd '"' '' |
+  #   rg '^$' -v
   while IFS= read -r q; do headers_stats+=("${q}"); done < <(
     cat "${DSTAT_FILE}" |
       sd -- '- ' '-|' |
@@ -615,7 +632,7 @@ dstat_to_csv() {
 
   local -a invalid_headers=()
   for h in ${headers_parsed[*]}; do
-    ph=$(echo "${h}" | sd -s '/' '_')
+    ph=$(echo "${h}" | sd -s '/' '_' | sd '^-' '' | sd -- '-$' '')
     if [[ "${VALID_DSTAT_HEADERS[${ph}]}" != "true" ]]; then
       invalid_headers+=("${h}")
     fi
@@ -635,7 +652,20 @@ dstat_to_csv() {
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
   parsed_values=$(
     awk 'NR > 2 { print }' "${DSTAT_FILE}" |
+      sd '(\w{3})-(\d{2}) ((\d{2}:){2}\d{2})' '${2}/${1}-${3}' |
       sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
+      sd 'Jan' "01" |
+      sd 'Feb' "02" |
+      sd 'Mar' "03" |
+      sd 'Apr' "04" |
+      sd 'May' "05" |
+      sd 'Jun' "06" |
+      sd 'Jul' "07" |
+      sd 'Aug' "08" |
+      sd 'Sep' "09" |
+      sd 'Oct' "10" |
+      sd 'Nov' "11" |
+      sd 'Dec' "12" |
       sd -s '|' ' ' |
       sd ' {1,1000}' ' ' |
       sd '^ ' '' |
