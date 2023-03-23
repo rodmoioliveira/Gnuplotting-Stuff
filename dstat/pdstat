@@ -507,8 +507,10 @@ arg_verbose() {
   fi
 
   if [[ "${VERBOSE}" == true ]]; then
+    NUM_FMT_INVALID_LEVEL="warn"
     GNUPLOT_ERRORS_SINK=/dev/stderr
   else
+    NUM_FMT_INVALID_LEVEL="ignore"
     GNUPLOT_ERRORS_SINK=/dev/null
   fi
 }
@@ -717,7 +719,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_total_cpu_usage=$(
       echo "${line_numbers}" |
@@ -743,7 +745,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_procs=$(
       echo "${line_numbers}" |
@@ -769,7 +771,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_memory_usage=$(
       echo "${line_numbers}" |
@@ -795,7 +797,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_paging=$(
       echo "${line_numbers}" |
@@ -821,7 +823,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_interrupts=$(
       echo "${line_numbers}" |
@@ -847,7 +849,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_load_avg=$(
       echo "${line_numbers}" |
@@ -873,7 +875,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_async_io=$(
       echo "${line_numbers}" |
@@ -899,7 +901,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_sysv_ipc=$(
       echo "${line_numbers}" |
@@ -925,7 +927,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_file_locks=$(
       echo "${line_numbers}" |
@@ -951,7 +953,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_raw=$(
       echo "${line_numbers}" |
@@ -977,7 +979,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_tcp=$(
       echo "${line_numbers}" |
@@ -1003,7 +1005,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_unix_sockets=$(
       echo "${line_numbers}" |
@@ -1029,7 +1031,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_sockets=$(
       echo "${line_numbers}" |
@@ -1055,7 +1057,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_udp=$(
       echo "${line_numbers}" |
@@ -1081,7 +1083,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_zone_memory=$(
       echo "${line_numbers}" |
@@ -1107,7 +1109,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_disk_total=$(
       echo "${line_numbers}" |
@@ -1133,7 +1135,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_net_total=$(
       echo "${line_numbers}" |
@@ -1159,7 +1161,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_swap=$(
       echo "${line_numbers}" |
@@ -1185,7 +1187,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_filesystem=$(
       echo "${line_numbers}" |
@@ -1211,7 +1213,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_virtual_memory_advanced=$(
       echo "${line_numbers}" |
@@ -1237,7 +1239,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_virtual_memory=$(
       echo "${line_numbers}" |
@@ -1263,7 +1265,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_io_total=$(
       echo "${line_numbers}" |
@@ -1289,7 +1291,7 @@ dstat_to_csv() {
         awk 'NR==1; END{print}' |
         sd -- '\n' '-' |
         sd -- '-$' '' |
-        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=","'
+        sd '(.+)' ' | numfmt --header --field $1 --from=si --delimiter=, --invalid '"${NUM_FMT_INVALID_LEVEL}"''
     )
     plot_system_int_csw=$(
       echo "${line_numbers}" |
@@ -1315,7 +1317,10 @@ dstat_to_csv() {
     sd '(\d)B' '${1}' >"${CSV_NUMFMT_CLEAN}"
 
   # Final phase
-  eval "cat ${CSV_NUMFMT_CLEAN} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT}"
+  eval "cat ${CSV_NUMFMT_CLEAN} ${numfmt_cmd} ${sd_cmd}" |
+    # Remove unformatted numfmt units (T - tera, P - penta, E - exa, Z - zetta, Y - yotta)
+    sd '[TPEZY]' '' \
+      >"${CSV_NUMFMT}"
 
   # TODO add --debug flag
   # echo "headers =========================="
