@@ -11,7 +11,7 @@ readme() {
   cat <<EOF >|./dstat/README.md
 # pdstat
 
-pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+pdstat is a Gnuplot script for plotting graphs from [dstat](https://github.com/dstat-real/dstat) and [dool](https://github.com/scottchiefbaker/dool) metric data.
 
 ## Dependencies
 
@@ -23,7 +23,7 @@ pdstat is a Gnuplot script for plotting graphs from dstat metric data.
   - [rg](https://github.com/BurntSushi/ripgrep)
   - [sd](https://github.com/chmln/sd)
 
-## TODO!
+## Roadmap
 
 - [x] Add units for each metric
 - [ ] Add flags filters to exclude and include the metrics to plot
@@ -40,7 +40,7 @@ $(./dstat/pdstat 2>&1 --help)
 ## Result
 
 <p align="center">
-  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/$(fd "all.png" dstat/plot/tee/dstat/default) ">
+  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/$(fd "all.png" dstat/plot/csv/dstat/default) ">
 </p>
 
 EOF

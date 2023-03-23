@@ -1,0 +1,39 @@
+#!/bin/bash
+
+declare TRACE
+[[ "${TRACE}" == 1 ]] && set -o xtrace
+set -o errexit
+set -o pipefail
+set -o noclobber
+
+main() {
+  printf "[ dool] Tee dool                %s\n" $(fd . -e dool | wc -l)
+  printf "[ dool] Plot tee default        %s\n" $(fd . -t f -e png dstat/plot/tee/dool/default | wc -l)
+  printf "[ dool] Plot tee mod            %s\n" $(fd . -t f -e png dstat/plot/tee/dool/mod | wc -l)
+  printf "[ dool] Plot tee mod_and_range  %s\n" $(fd . -t f -e png dstat/plot/tee/dool/mod_and_range | wc -l)
+  printf "[ dool] Plot tee range          %s\n" $(fd . -t f -e png dstat/plot/tee/dool/range | wc -l)
+  printf "[ dool] Plot tee styles         %s\n" $(fd . -t f -e png dstat/plot/tee/dool/styles | wc -l)
+  printf "\n"
+  printf "[dstat] Tee dstat               %s\n" $(fd . -e dstat | wc -l)
+  printf "[dstat] Plot tee default        %s\n" $(fd . -t f -e png dstat/plot/tee/dstat/default | wc -l)
+  printf "[dstat] Plot tee mod            %s\n" $(fd . -t f -e png dstat/plot/tee/dstat/mod | wc -l)
+  printf "[dstat] Plot tee mod_and_range  %s\n" $(fd . -t f -e png dstat/plot/tee/dstat/mod_and_range | wc -l)
+  printf "[dstat] Plot tee range          %s\n" $(fd . -t f -e png dstat/plot/tee/dstat/range | wc -l)
+  printf "[dstat] Plot tee styles         %s\n" $(fd . -t f -e png dstat/plot/tee/dstat/styles | wc -l)
+  printf "\n"
+  printf "[ dool] Csv dool                %s\n" $(fd . -t f -e csv dstat/data/csv/dool | wc -l)
+  printf "[ dool] Plot csv default        %s\n" $(fd . -t f -e png dstat/plot/csv/dool/default | wc -l)
+  printf "[ dool] Plot csv mod            %s\n" $(fd . -t f -e png dstat/plot/csv/dool/mod | wc -l)
+  printf "[ dool] Plot csv mod_and_range  %s\n" $(fd . -t f -e png dstat/plot/csv/dool/mod_and_range | wc -l)
+  printf "[ dool] Plot csv range          %s\n" $(fd . -t f -e png dstat/plot/csv/dool/range | wc -l)
+  printf "[ dool] Plot csv styles         %s\n" $(fd . -t f -e png dstat/plot/csv/dool/styles | wc -l)
+  printf "\n"
+  printf "[dstat] Csv dstat               %s\n" $(fd . -t f -e csv dstat/data/csv/dstat | wc -l)
+  printf "[dstat] Plot csv default        %s\n" $(fd . -t f -e png dstat/plot/csv/dstat/default | wc -l)
+  printf "[dstat] Plot csv mod            %s\n" $(fd . -t f -e png dstat/plot/csv/dstat/mod | wc -l)
+  printf "[dstat] Plot csv mod_and_range  %s\n" $(fd . -t f -e png dstat/plot/csv/dstat/mod_and_range | wc -l)
+  printf "[dstat] Plot csv range          %s\n" $(fd . -t f -e png dstat/plot/csv/dstat/range | wc -l)
+  printf "[dstat] Plot csv styles         %s\n" $(fd . -t f -e png dstat/plot/csv/dstat/styles | wc -l)
+}
+
+main

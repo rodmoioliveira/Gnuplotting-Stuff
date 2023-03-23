@@ -122,7 +122,7 @@ generate_data_random() {
         sd ' ' '_'
     )
     file_csv="${DATA_CSV_DIR}/${dstat_filename}.csv"
-    file_tee="${DATA_TEE_DIR}/${dstat_filename}.dool"
+    file_tee="${DATA_TEE_DIR}/${dstat_filename}.dstat"
     dstat_cmd_with_output=$(echo "${dstat_cmd}" | sd -- "output" "--output ${file_csv}")
     generate+=("${dstat_cmd_with_output} | tee ${file_tee} &")
   done
@@ -283,8 +283,7 @@ main() {
   # generate_data_random
 
   tee_plot_data
-  # TODO: implement dstat csv input por pdstat!
-  # csv_plot_data
+  csv_plot_data
 }
 
 main

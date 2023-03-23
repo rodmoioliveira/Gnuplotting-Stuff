@@ -5,7 +5,7 @@
 ## TITLE:         pdstat
 ## AUTHOR:        Rodolfo Mói de Oliveira
 ## DESCRIPTION:   pdstat is a Gnuplot script for plotting graphs from dstat
-##                metric data.
+##                and dool metric data.
 ## DATE:          16. Mar. 2023
 ## LICENSE:       MIT
 ##
@@ -37,6 +37,8 @@ MOD_X=1
 PLOT_XDATA='set xdata time'
 PLOT_TIMEFMT='set timefmt "%d/%m-%H:%M:%S"'
 PLOT_FORMAT_X='set format x "%H:%M:%S"'
+
+IS_CSV_INPUT=false
 
 declare -A VALID_DSTAT_FLAGS=(
   ["time"]="time"
@@ -168,12 +170,12 @@ usage_short() {
   local help_text
   help_text=$(
     cat <<"EOF"
-pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+pdstat is a Gnuplot script for plotting graphs from dstat and dool metric data.
 
 Usage: pdstat [OPTIONS] <FILE>
 
 Arguments:
-  <FILE>       A FILE with dstat metric data
+  <FILE>       A FILE with dstat/dool metric data (tee or csv output)
 
 Options:
       --color-bg <COLOR>          Set background color [default: #ffffff]
@@ -200,14 +202,14 @@ usage_long() {
   local help_text
   help_text=$(
     cat <<"EOF"
-pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+pdstat is a Gnuplot script for plotting graphs from dstat and dool metric data.
 
 Usage:
   pdstat [OPTIONS] <FILE>
 
 Arguments:
   <FILE>
-          A FILE with dstat metric data
+          A FILE with dstat/dool metric data (tee or csv output)
 
 Options:
       --color-bg <COLOR>
@@ -254,13 +256,21 @@ Options:
 
 Examples:
 
-  Get some data
+  Get some CSV data (preferred way):
+    dstat --time --cpu --disk --socket --output dstat.csv 1 60
+    dool  --time --cpu --disk --socket --output dool.csv  1 60
+
+  Or get some tee data:
     dstat --time --cpu --disk --socket 1 60 | tee file.dstat
+    dool  --time --cpu --disk --socket 1 60 | tee file.dool
 
-  Plot from data
-    pdstat file.dstat
+  Plot from data:
+    pdstat  dstat.csv  -o   dstat.csv.png
+    pdstat   dool.csv  -o    dool.csv.png
+    pdstat file.dstat  -o  file.dstat.png
+    pdstat  file.dool  -o   file.dool.png
 
-  Change plot styles
+  Change plot styles:
     pdstat \
       --color-bg "#000000" \
       --color-fg "#ffffff" \
@@ -269,13 +279,13 @@ Examples:
       --line-width 3 \
       --width 1300 \
       --height 300 \
-      file.dstat
+      dstat.csv
 
-  Slice your data
-    pdstat --x-range 50:100 file.dstat
+  Slice your data:
+    pdstat --x-range 50:100 dstat.csv
 
-  Decrease the granularity of data points
-    pdstat --x-mod 2 file.dstat
+  Decrease the granularity of data points:
+    pdstat --x-mod 2 dstat.csv
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
@@ -555,16 +565,32 @@ dstat_to_csv() {
     printf 1>&2 "[Processing] %s ... " "${FILE}"
   fi
 
+  if cat "${FILE}" | awk 'NR==1 {print}' | rg 'CSV output' >/dev/null; then
+    IS_CSV_INPUT=true
+  fi
+
   array_counter=0
   local -a headers
   local -a headers_stats
   local -a headers_parsed
   local -a headers_parsed_new_line
 
-  cat "${FILE}" |
-    # TODO: support dool?
-    sd '┄' '-' | sd '┬' '|' | sd '│' '|' \
-    >"${DSTAT_FILE}"
+  if [[ "${IS_CSV_INPUT}" == true ]]; then
+    if multi_data_csv_line=$(cat "${FILE}" | rg '^$' --line-number | awk -F':' 'NR==1 {print $1}'); then
+      cat "${FILE}" | sd '"' '' | awk 'NR>4 && NR<'"${multi_data_csv_line}"' {print}' >"${DSTAT_FILE}"
+    else
+      cat "${FILE}" | sd '"' '' | awk 'NR>4 {print}' >"${DSTAT_FILE}"
+    fi
+
+    # FIXME: PROBLEM 1
+    sd ' ' '-' "${DSTAT_FILE}"
+    sd '#' '' "${DSTAT_FILE}"
+  else
+    cat "${FILE}" |
+      sd '┄' '-' | sd '┬' '|' | sd '│' '|' \
+      >"${DSTAT_FILE}"
+  fi
+
   if ! searched_lines=$(cat "${DSTAT_FILE}" | rg -F "time" --line-number); then
     PLOT_XDATA=''
     PLOT_TIMEFMT=''
@@ -573,65 +599,91 @@ dstat_to_csv() {
     time_data_length=$(cat "${DSTAT_FILE}" | wc -l)
     time_data_length=$((time_data_length - 2))
 
-    echo "----system----" >"${DSTAT_TIME_DATAPOINTS}"
-    echo "     time     " >>"${DSTAT_TIME_DATAPOINTS}"
-    for i in $(seq 1 "${time_data_length}"); do
-      echo "${i}" >>"${DSTAT_TIME_DATAPOINTS}"
-    done
+    if [[ "${IS_CSV_INPUT}" == true ]]; then
+      echo "system" >"${DSTAT_TIME_DATAPOINTS}"
+      echo "time" >>"${DSTAT_TIME_DATAPOINTS}"
+      for i in $(seq 1 "${time_data_length}"); do
+        echo "${i}" >>"${DSTAT_TIME_DATAPOINTS}"
+      done
 
-    paste -d '|' "${DSTAT_TIME_DATAPOINTS}" "${DSTAT_FILE}" >"${DSTAT_WITH_DEFAULT_TIME}"
+      paste -d ',' "${DSTAT_TIME_DATAPOINTS}" "${DSTAT_FILE}" >"${DSTAT_WITH_DEFAULT_TIME}"
+    else
+      echo "----system----" >"${DSTAT_TIME_DATAPOINTS}"
+      echo "     time     " >>"${DSTAT_TIME_DATAPOINTS}"
+      for i in $(seq 1 "${time_data_length}"); do
+        echo "${i}" >>"${DSTAT_TIME_DATAPOINTS}"
+      done
+
+      paste -d '|' "${DSTAT_TIME_DATAPOINTS}" "${DSTAT_FILE}" >"${DSTAT_WITH_DEFAULT_TIME}"
+    fi
+
     mv "${DSTAT_WITH_DEFAULT_TIME}" "${DSTAT_FILE}"
   fi
 
-  # # TODO: csv parsing
-  # bat csv |
-  #   awk 'NR==5 {print}' |
-  #   sd ',{1,1000}' ',' |
-  #   sd ' ' '-' |
-  #   sd ',' '\n' |
-  #   sd '"' '' |
-  #   rg '^$' -v
-  while IFS= read -r q; do headers+=("${q}"); done < <(
-    cat "${DSTAT_FILE}" |
-      sd -- 'async' '--async--' |
-      sd -- '- ' '-|' |
-      sd -- '-{2,}' '' |
-      sd -s -- '-|' '|' |
-      sd -s -- '|-' '|' |
-      sd '(\w)-$' '$1' |
-      awk 'NR==1{print}' |
-      sd '\|' '\n'
-  )
+  if [[ "${IS_CSV_INPUT}" == true ]]; then
+    first_header=$(cat "${DSTAT_FILE}" | awk 'NR==1 {print}' | sd ',' '\n' | awk 'NR==1 {print}')
+    while IFS= read -r q; do
+      if [[ "${q}" == "NULL" ]]; then
+        headers+=("${first_header}")
+      else
+        headers+=("${q}")
+        first_header="${q}"
+      fi
+    done < <(cat "${DSTAT_FILE}" | awk 'NR==1 {print}' | sd ',' '\n' | sd '^$' 'NULL')
+  else
+    while IFS= read -r q; do headers+=("${q}"); done < <(
+      cat "${DSTAT_FILE}" |
+        sd -- 'async' '--async--' |
+        sd -- '- ' '-|' |
+        sd -- '-{2,}' '' |
+        sd -s -- '-|' '|' |
+        sd -s -- '|-' '|' |
+        sd '(\w)-$' '$1' |
+        awk 'NR==1{print}' |
+        sd '\|' '\n'
+    )
+  fi
 
-  # # TODO: csv parsing
-  # bat csv |
-  #   awk 'NR==6 {print}' |
-  #   sd ',{1,1000}' ',' |
-  #   sd ' ' '-' |
-  #   sd ',' '\n' |
-  #   sd '"' '' |
-  #   rg '^$' -v
-  while IFS= read -r q; do headers_stats+=("${q}"); done < <(
-    cat "${DSTAT_FILE}" |
-      sd -- '- ' '-|' |
-      sd -- '-{2,}' '' |
-      sd -s -- '-|' '|' |
-      sd -s -- '|-' '|' |
-      awk 'NR==2{print}' |
-      sd '\|' '\n' |
-      sd '^ {1,1000}' '' |
-      sd ' {2,1000}' ' ' |
-      sd ' {0,1000}\n' '\n' |
-      sd '#' ''
-  )
+  if [[ "${IS_CSV_INPUT}" == true ]]; then
+    while IFS= read -r q; do headers_stats+=("${q}"); done < <(
+      cat "${DSTAT_FILE}" |
+        awk 'NR==2 {print}' |
+        sd ',{1,1000}' ',' |
+        sd ' ' '-' |
+        sd ',' '\n' |
+        sd '"' '' |
+        rg '^$' -v
+    )
+  else
+    while IFS= read -r q; do headers_stats+=("${q}"); done < <(
+      cat "${DSTAT_FILE}" |
+        sd -- '- ' '-|' |
+        sd -- '-{2,}' '' |
+        sd -s -- '-|' '|' |
+        sd -s -- '|-' '|' |
+        awk 'NR==2{print}' |
+        sd '\|' '\n' |
+        sd '^ {1,1000}' '' |
+        sd ' {2,1000}' ' ' |
+        sd ' {0,1000}\n' '\n' |
+        sd '#' ''
+    )
+  fi
 
-  for hs in "${headers_stats[@]}"; do
-    local -a stats
-    while IFS= read -r q; do stats+=("${q}"); done < <(echo "${hs}" | sd ' ' '\n')
-    for s in "${stats[@]}"; do headers_parsed+=("${headers[${array_counter}]}/${s}"); done
-    stats=()
-    array_counter=$((array_counter + 1))
-  done
+  if [[ "${IS_CSV_INPUT}" == true ]]; then
+    for hs in "${headers_stats[@]}"; do
+      headers_parsed+=("${headers[${array_counter}]}/${hs}")
+      array_counter=$((array_counter + 1))
+    done
+  else
+    for hs in "${headers_stats[@]}"; do
+      local -a stats
+      while IFS= read -r q; do stats+=("${q}"); done < <(echo "${hs}" | sd ' ' '\n')
+      for s in "${stats[@]}"; do headers_parsed+=("${headers[${array_counter}]}/${s}"); done
+      stats=()
+      array_counter=$((array_counter + 1))
+    done
+  fi
 
   local -a invalid_headers=()
   for h in ${headers_parsed[*]}; do
@@ -655,6 +707,7 @@ dstat_to_csv() {
   echo "${headers_parsed[@]}" | sd ' ' ',' >|"${CSV_PARSED}"
   parsed_values=$(
     awk 'NR > 2 { print }' "${DSTAT_FILE}" |
+      # FIXME: PROBLEM 1
       sd '(\w{3})-(\d{2}) ((\d{2}:){2}\d{2})' '${2}/${1}-${3}' |
       sd '(\d{2})-(\d{2}) ((\d{2}:){2}\d{2})' '${1}/${2}-${3}' |
       sd 'Jan' "01" |
@@ -673,7 +726,9 @@ dstat_to_csv() {
       sd ' {1,1000}' ' ' |
       sd '^ ' '' |
       sd ' ' ',' |
-      sd ',$' ''
+      sd ',$' '' |
+      # FIXME: PROBLEM 1
+      sd '(\d{2})-(\d{2})-((\d{2}:){2}\d{2})' '${2}/${1}-${3}'
   )
 
   if [[ "${HAS_MOD_X}" == true ]]; then

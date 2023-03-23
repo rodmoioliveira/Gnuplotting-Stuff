@@ -285,8 +285,7 @@ main() {
   # generate_data_random
 
   tee_plot_data
-  # TODO: implement dool csv input por pdstat!
-  # csv_plot_data
+  csv_plot_data
 }
 
 main
