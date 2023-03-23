@@ -19,31 +19,33 @@ mkdir_data() {
   mkdir dstat/data/{tee,csv}/{dool,dstat} -p
 }
 
-tee_generate_data() {
-  dstat --time --cpu 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/cpu.dstat &
-  dstat --time --disk 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/disk.dstat &
-  dstat --time --page 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/page.dstat &
-  dstat --time --int 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/int.dstat &
-  dstat --time --load 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/load.dstat &
-  dstat --time --mem 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/mem.dstat &
-  dstat --time --net 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/net.dstat &
-  dstat --time --proc 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/proc.dstat &
-  dstat --time --io 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/io.dstat &
-  dstat --time --swap 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/swap.dstat &
-  dstat --time --sys 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/sys.dstat &
-  dstat --time --aio 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/aio.dstat &
-  dstat --time --fs 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/fs.dstat &
-  dstat --time --ipc 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/ipc.dstat &
-  dstat --time --lock 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/lock.dstat &
-  dstat --time --raw 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/raw.dstat &
-  dstat --time --socket 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/socket.dstat &
-  dstat --time --tcp 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/tpc.dstat &
-  dstat --time --udp 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/udp.dstat &
-  dstat --time --unix 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/unix.dstat &
-  dstat --time --vm 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/vm.dstat &
-  dstat --time --vm-adv 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/vm-adv.dstat &
-  dstat --time --zones 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/zones.dstat &
-  dstat --time \
+generate_data() {
+  dstat --output "${DATA_CSV_DIR}"/cpu.csv --time --cpu 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/cpu.dstat &
+  dstat --output "${DATA_CSV_DIR}"/disk.csv --time --disk 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/disk.dstat &
+  dstat --output "${DATA_CSV_DIR}"/page.csv --time --page 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/page.dstat &
+  dstat --output "${DATA_CSV_DIR}"/int.csv --time --int 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/int.dstat &
+  dstat --output "${DATA_CSV_DIR}"/load.csv --time --load 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/load.dstat &
+  dstat --output "${DATA_CSV_DIR}"/mem.csv --time --mem 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/mem.dstat &
+  dstat --output "${DATA_CSV_DIR}"/net.csv --time --net 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/net.dstat &
+  dstat --output "${DATA_CSV_DIR}"/proc.csv --time --proc 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/proc.dstat &
+  dstat --output "${DATA_CSV_DIR}"/io.csv --time --io 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/io.dstat &
+  dstat --output "${DATA_CSV_DIR}"/swap.csv --time --swap 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/swap.dstat &
+  dstat --output "${DATA_CSV_DIR}"/sys.csv --time --sys 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/sys.dstat &
+  dstat --output "${DATA_CSV_DIR}"/aio.csv --time --aio 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/aio.dstat &
+  dstat --output "${DATA_CSV_DIR}"/fs.csv --time --fs 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/fs.dstat &
+  dstat --output "${DATA_CSV_DIR}"/ipc.csv --time --ipc 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/ipc.dstat &
+  dstat --output "${DATA_CSV_DIR}"/lock.csv --time --lock 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/lock.dstat &
+  dstat --output "${DATA_CSV_DIR}"/raw.csv --time --raw 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/raw.dstat &
+  dstat --output "${DATA_CSV_DIR}"/socket.csv --time --socket 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/socket.dstat &
+  dstat --output "${DATA_CSV_DIR}"/tpc.csv --time --tcp 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/tpc.dstat &
+  dstat --output "${DATA_CSV_DIR}"/udp.csv --time --udp 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/udp.dstat &
+  dstat --output "${DATA_CSV_DIR}"/unix.csv --time --unix 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/unix.dstat &
+  dstat --output "${DATA_CSV_DIR}"/vm.csv --time --vm 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/vm.dstat &
+  dstat --output "${DATA_CSV_DIR}"/vm-adv.csv --time --vm-adv 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/vm-adv.dstat &
+  dstat --output "${DATA_CSV_DIR}"/zones.csv --time --zones 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/zones.dstat &
+  dstat \
+    --output "${DATA_CSV_DIR}"/all.csv \
+    --time \
     --cpu \
     --disk \
     --page \
@@ -68,6 +70,7 @@ tee_generate_data() {
     --vm-adv \
     --zones 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/all.dstat &
   dstat \
+    --output "${DATA_CSV_DIR}"/all_with_default_time.csv \
     --cpu \
     --disk \
     --page \
@@ -92,6 +95,40 @@ tee_generate_data() {
     --vm-adv \
     --zones 1 "${TIMER}" | tee "${DATA_TEE_DIR}"/all_with_default_time.dstat
   sleep 5
+}
+
+generate_data_random() {
+  local -a generate
+
+  for i in $(seq 1 20); do
+    echo "Random genetarion ${i}"
+    dstat_cmd=$(
+      echo -e --cpu --disk --page --int --load --mem --net --proc --io --swap --sys --aio --fs --ipc --lock --raw --socket --tcp --udp --unix --vm --vm-adv --zones --time |
+        sd ' ' '\n' |
+        shuf |
+        head -n $(shuf -i 3-12 -n1) |
+        sd '\n' ' ' |
+        sd ' $' '\n' |
+        sd '(.+)' 'dstat output $1 1 num' |
+        sd 'num' "${TIMER}"
+    )
+    dstat_filename=$(
+      echo "${dstat_cmd}" |
+        sd ' ' '\n' |
+        rg -- '--' |
+        sd '\n' ' ' |
+        sd -- '--' '' |
+        sd ' $' '' |
+        sd ' ' '_'
+    )
+    file_csv="${DATA_CSV_DIR}/${dstat_filename}.csv"
+    file_tee="${DATA_TEE_DIR}/${dstat_filename}.dool"
+    dstat_cmd_with_output=$(echo "${dstat_cmd}" | sd -- "output" "--output ${file_csv}")
+    generate+=("${dstat_cmd_with_output} | tee ${file_tee} &")
+  done
+
+  for c in "${generate[@]}"; do eval "${c}"; done
+  sleep $(echo "${TIMER} + 10" | bc)
 }
 
 tee_plot_data() {
@@ -167,118 +204,6 @@ tee_plot_data() {
   done
 }
 
-tee_generate_data_random() {
-  local -a generate
-
-  for i in $(seq 1 20); do
-    echo "Random genetarion ${i}"
-    dstat_cmd=$(
-      echo -e --cpu --disk --page --int --load --mem --net --proc --io --swap --sys --aio --fs --ipc --lock --raw --socket --tcp --udp --unix --vm --vm-adv --zones --time |
-        sd ' ' '\n' |
-        shuf |
-        head -n $(shuf -i 3-12 -n1) |
-        sd '\n' ' ' |
-        sd ' $' '\n' |
-        sd '(.+)' 'dstat $1 1 num' |
-        sd 'num' "${TIMER}"
-    )
-    dstat_filename=$(
-      echo "${dstat_cmd}" |
-        sd ' ' '\n' |
-        rg -- '--' |
-        sd '\n' ' ' |
-        sd -- '--' '' |
-        sd ' $' '' |
-        sd ' ' '_'
-    )
-    file="${DATA_TEE_DIR}/${dstat_filename}.dstat"
-    png="${PLOT_TEE_DIR}/random/${dstat_filename}.png"
-    generate+=("${dstat_cmd} | tee ${file} &")
-  done
-
-  for c in "${generate[@]}"; do eval "${c}"; done
-  sleep $(echo "${TIMER} + 10" | bc)
-}
-
-csv_generate_data() {
-  dstat --output "${DATA_CSV_DIR}"/cpu.csv --time --cpu 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/disk.csv --time --disk 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/page.csv --time --page 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/int.csv --time --int 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/load.csv --time --load 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/mem.csv --time --mem 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/net.csv --time --net 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/proc.csv --time --proc 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/io.csv --time --io 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/swap.csv --time --swap 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/sys.csv --time --sys 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/aio.csv --time --aio 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/fs.csv --time --fs 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/ipc.csv --time --ipc 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/lock.csv --time --lock 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/raw.csv --time --raw 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/socket.csv --time --socket 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/tpc.csv --time --tcp 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/udp.csv --time --udp 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/unix.csv --time --unix 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/vm.csv --time --vm 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/vm-adv.csv --time --vm-adv 1 "${TIMER}" &
-  dstat --output "${DATA_CSV_DIR}"/zones.csv --time --zones 1 "${TIMER}" &
-  dstat --time \
-    --cpu \
-    --disk \
-    --page \
-    --int \
-    --load \
-    --mem \
-    --net \
-    --proc \
-    --io \
-    --swap \
-    --sys \
-    --aio \
-    --fs \
-    --ipc \
-    --lock \
-    --raw \
-    --socket \
-    --tcp \
-    --udp \
-    --unix \
-    --vm \
-    --vm-adv \
-    --zones \
-    --output "${DATA_CSV_DIR}"/all.csv \
-    1 "${TIMER}" &
-  dstat \
-    --cpu \
-    --disk \
-    --page \
-    --int \
-    --load \
-    --mem \
-    --net \
-    --proc \
-    --io \
-    --swap \
-    --sys \
-    --aio \
-    --fs \
-    --ipc \
-    --lock \
-    --raw \
-    --socket \
-    --tcp \
-    --udp \
-    --unix \
-    --vm \
-    --vm-adv \
-    --zones \
-    --output "${DATA_CSV_DIR}"/all_with_default_time.csv \
-    1 "${TIMER}"
-  sleep 5
-}
-
 csv_plot_data() {
   # no flags
   for file in $(fd . -t f -e csv "${DATA_CSV_DIR}"); do
@@ -352,47 +277,12 @@ csv_plot_data() {
   done
 }
 
-csv_generate_data_random() {
-  local -a generate
-
-  for i in $(seq 1 20); do
-    echo "Random genetarion ${i}"
-    dstat_cmd=$(
-      echo -e --cpu --disk --page --int --load --mem --net --proc --io --swap --sys --aio --fs --ipc --lock --raw --socket --tcp --udp --unix --vm --vm-adv --zones --time |
-        sd ' ' '\n' |
-        shuf |
-        head -n $(shuf -i 3-12 -n1) |
-        sd '\n' ' ' |
-        sd ' $' '\n' |
-        sd '(.+)' 'dstat output $1 1 num' |
-        sd 'num' "${TIMER}"
-    )
-    dstat_filename=$(
-      echo "${dstat_cmd}" |
-        sd ' ' '\n' |
-        rg -- '--' |
-        sd '\n' ' ' |
-        sd -- '--' '' |
-        sd ' $' '' |
-        sd ' ' '_'
-    )
-    file="${DATA_CSV_DIR}/${dstat_filename}.csv"
-    dstat_cmd_with_output=$(echo "${dstat_cmd}" | sd -- "output" "--output ${file}")
-    generate+=("${dstat_cmd_with_output} &")
-  done
-
-  for c in "${generate[@]}"; do eval "${c}"; done
-  sleep $(echo "${TIMER} + 10" | bc)
-}
-
 main() {
   mkdir_data
-  # tee_generate_data
-  # tee_generate_data_random
-  tee_plot_data
+  # generate_data
+  # generate_data_random
 
-  # csv_generate_data
-  # csv_generate_data_random
+  tee_plot_data
   # TODO: implement dstat csv input por pdstat!
   # csv_plot_data
 }
