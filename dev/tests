@@ -8,7 +8,6 @@ set -o pipefail
 set -o noclobber
 
 test_pwrk2() {
-  # source ~/.bash_profile
   pwrk2 --help
   fd . -e hgrm |
     pwrk2 \
@@ -56,7 +55,6 @@ test_pwrk2() {
 test_pdstat() {
   SHUFFLE=5
 
-  # source ~/.bash_profile
   pdstat --help
   fd . -t f -e dstat -e dool |
     shuf -n"${SHUFFLE}" |
@@ -80,6 +78,10 @@ test_pdstat() {
 }
 
 main() {
+  if [[ "${CI}" == "true" ]]; then
+    source ~/.bash_profile
+  fi
+
   test_pwrk2
   test_pdstat
 }
