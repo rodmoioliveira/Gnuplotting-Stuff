@@ -1354,8 +1354,8 @@ dstat_to_csv() {
 }
 
 debug_numfmt() {
-  printf 1>&2 "[Warning] Unformatted numfmt units (T - tera, P - penta, E - exa, Z - zetta, Y - yotta)\n"
   if searched_lines=$(cat "${CSV_NUMFMT_DEBUG}" | rg '[TPEZY]' --line-number | sd '^(\d{1,1000}:)' '[Warning] line_${1}'); then
+    printf 1>&2 "[Warning] Unformatted numfmt units (T - tera, P - penta, E - exa, Z - zetta, Y - yotta)\n"
     awk 'NR==1 {print}' "${CSV_NUMFMT_DEBUG}" | sd '(.+)' '[Warning] line_1:${1}' 1>&2
     echo 1>&2 "${searched_lines}"
   fi
