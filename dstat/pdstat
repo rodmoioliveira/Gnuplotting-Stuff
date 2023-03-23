@@ -160,6 +160,7 @@ mktempdir() {
   CSV_PARSED="${TMP_DIR}/parsed.csv"
   CSV_MOD="${TMP_DIR}/mod.csv"
   CSV_NUMFMT_CLEAN="${TMP_DIR}/numfmt_clean.csv"
+  CSV_NUMFMT_DEBUG="${TMP_DIR}/numfmt_debug.csv"
   CSV_NUMFMT="${TMP_DIR}/numfmt.csv"
 }
 
@@ -1316,8 +1317,14 @@ dstat_to_csv() {
     sd '(\d)k' '${1}K' |
     sd '(\d)B' '${1}' >"${CSV_NUMFMT_CLEAN}"
 
+  # Save Debug CSV
+  eval "cat ${CSV_NUMFMT_CLEAN} ${numfmt_cmd} ${sd_cmd}" >"${CSV_NUMFMT_DEBUG}"
+  if [[ "${VERBOSE}" == true ]]; then
+    debug_numfmt
+  fi
+
   # Final phase
-  eval "cat ${CSV_NUMFMT_CLEAN} ${numfmt_cmd} ${sd_cmd}" |
+  cat "${CSV_NUMFMT_DEBUG}" |
     # Remove unformatted numfmt units (T - tera, P - penta, E - exa, Z - zetta, Y - yotta)
     sd '[TPEZY]' '' \
       >"${CSV_NUMFMT}"
@@ -1343,6 +1350,14 @@ dstat_to_csv() {
 
   if [[ "${VERBOSE}" == true ]]; then
     printf 1>&2 "Done!\n"
+  fi
+}
+
+debug_numfmt() {
+  printf 1>&2 "[Warning] Unformatted numfmt units (T - tera, P - penta, E - exa, Z - zetta, Y - yotta)\n"
+  if searched_lines=$(cat "${CSV_NUMFMT_DEBUG}" | rg '[TPEZY]' --line-number | sd '^(\d{1,1000}:)' '[Warning] line_${1}'); then
+    awk 'NR==1 {print}' "${CSV_NUMFMT_DEBUG}" | sd '(.+)' '[Warning] line_1:${1}' 1>&2
+    echo 1>&2 "${searched_lines}"
   fi
 }
 
