@@ -8,6 +8,7 @@ on:
 
 env:
   TRACE: 0
+  CI: true
 
 jobs:
   tests:
