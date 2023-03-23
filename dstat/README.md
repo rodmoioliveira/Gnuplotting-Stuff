@@ -1,6 +1,6 @@
 # pdstat
 
-pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+pdstat is a Gnuplot script for plotting graphs from [dstat](https://github.com/dstat-real/dstat) and [dool](https://github.com/scottchiefbaker/dool) metric data.
 
 ## Dependencies
 
@@ -12,7 +12,7 @@ pdstat is a Gnuplot script for plotting graphs from dstat metric data.
   - [rg](https://github.com/BurntSushi/ripgrep)
   - [sd](https://github.com/chmln/sd)
 
-## TODO!
+## Roadmap
 
 - [x] Add units for each metric
 - [ ] Add flags filters to exclude and include the metrics to plot
@@ -23,14 +23,14 @@ pdstat is a Gnuplot script for plotting graphs from dstat metric data.
 ## Usage
 
 ```txt
-pdstat is a Gnuplot script for plotting graphs from dstat metric data.
+pdstat is a Gnuplot script for plotting graphs from dstat and dool metric data.
 
 Usage:
   pdstat [OPTIONS] <FILE>
 
 Arguments:
   <FILE>
-          A FILE with dstat metric data
+          A FILE with dstat/dool metric data (tee or csv output)
 
 Options:
       --color-bg <COLOR>
@@ -77,13 +77,21 @@ Options:
 
 Examples:
 
-  Get some data
+  Get some CSV data (preferred way):
+    dstat --time --cpu --disk --socket --output dstat.csv 1 60
+    dool  --time --cpu --disk --socket --output dool.csv  1 60
+
+  Or get some tee data:
     dstat --time --cpu --disk --socket 1 60 | tee file.dstat
+    dool  --time --cpu --disk --socket 1 60 | tee file.dool
 
-  Plot from data
-    pdstat file.dstat
+  Plot from data:
+    pdstat  dstat.csv  -o   dstat.csv.png
+    pdstat   dool.csv  -o    dool.csv.png
+    pdstat file.dstat  -o  file.dstat.png
+    pdstat  file.dool  -o   file.dool.png
 
-  Change plot styles
+  Change plot styles:
     pdstat \
       --color-bg "#000000" \
       --color-fg "#ffffff" \
@@ -92,13 +100,13 @@ Examples:
       --line-width 3 \
       --width 1300 \
       --height 300 \
-      file.dstat
+      dstat.csv
 
-  Slice your data
-    pdstat --x-range 50:100 file.dstat
+  Slice your data:
+    pdstat --x-range 50:100 dstat.csv
 
-  Decrease the granularity of data points
-    pdstat --x-mod 2 file.dstat
+  Decrease the granularity of data points:
+    pdstat --x-mod 2 dstat.csv
 
 Author:
   Rodolfo Mói de Oliveira (https://github.com/rodmoioliveira)
@@ -111,6 +119,6 @@ Bug Report:
 ## Result
 
 <p align="center">
-  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/dstat/plot/tee/dstat/default/all.png ">
+  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/dstat/plot/csv/dstat/default/all.png ">
 </p>
 
