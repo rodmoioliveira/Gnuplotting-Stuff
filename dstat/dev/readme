@@ -40,7 +40,7 @@ $(./dstat/pdstat 2>&1 --help)
 ## Result
 
 <p align="center">
-  <img src="https://github.com/rodmoioliveira/Gnuplotting-Stuff/blob/main/$(fd "all.png" dstat/plot/csv/dstat/default) ">
+  <img src="https://raw.githubusercontent.com/rodmoioliveira/Gnuplotting-Stuff/main/$(fd "all.png" dstat/plot/csv/dstat/default) ">
 </p>
 
 EOF
