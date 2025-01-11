@@ -4,7 +4,7 @@ help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; \
 		{printf "%-14s %s\n", $$1, $$2}' | \
-		sort
+		LC_ALL=C sort
 
 dependencies: ## Install dependencies
 	@./dev/dependencies
